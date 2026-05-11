@@ -1,0 +1,73 @@
+import {
+  findAllTfgs,
+  findTfgById,
+  findTfgsByTutor,
+  findTfgsByMember,
+  createTfg,
+  updateTfg,
+  deleteTfg,
+} from "../repositories/tfg.repository";
+
+export async function getAllTfgs() {
+  return findAllTfgs();
+}
+
+export async function getTfgById(id: number) {
+  const tfg = await findTfgById(id);
+  if (!tfg) throw new Error("TFG_NOT_FOUND");
+  return tfg;
+}
+
+export async function getTfgsByUser(userId: number, role: string) {
+  if (role === "profesor" || role === "coordinador" || role === "admin") {
+    return findTfgsByTutor(userId);
+  }
+  return findTfgsByMember(userId);
+}
+
+export async function createNewTfg(
+  data: {
+    title: string;
+    description?: string;
+    academicYear?: string;
+    repositoryUrl?: string;
+    githubToken?: string;
+  },
+  tutorId: number
+) {
+  return createTfg({ ...data, tutorId });
+}
+
+export async function updateExistingTfg(
+  id: number,
+  data: {
+    title?: string;
+    description?: string;
+    academicYear?: string;
+    status?: string;
+    repositoryUrl?: string;
+    githubToken?: string;
+  },
+  userId: number,
+  userRole: string
+) {
+  const tfg = await findTfgById(id);
+  if (!tfg) throw new Error("TFG_NOT_FOUND");
+
+  if (userRole !== "admin" && userRole !== "coordinador" && tfg.tutorId !== userId) {
+    throw new Error("FORBIDDEN");
+  }
+
+  return updateTfg(id, data);
+}
+
+export async function deleteExistingTfg(id: number, userId: number, userRole: string) {
+  const tfg = await findTfgById(id);
+  if (!tfg) throw new Error("TFG_NOT_FOUND");
+
+  if (userRole !== "admin" && userRole !== "coordinador" && tfg.tutorId !== userId) {
+    throw new Error("FORBIDDEN");
+  }
+
+  return deleteTfg(id);
+}

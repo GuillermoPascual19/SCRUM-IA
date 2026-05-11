@@ -1,0 +1,245 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(100)
+  email     String   @unique @db.VarChar(150)
+  password  String   @db.VarChar(255)
+  role      String   @db.VarChar(20)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  tutoredTfgs          Tfg[]            @relation("TutorTfg")
+  tfgMemberships       TfgMember[]
+  assignedTasks        Task[]           @relation("TaskAssignee")
+  commits              Commit[]
+  sprintActivities     SprintActivity[]
+  studentEvaluations   Evaluation[]     @relation("StudentEvaluation")
+  professorEvaluations Evaluation[]     @relation("ProfessorEvaluation")
+  studentGrades        TfgFinalGrade[]  @relation("StudentGrade")
+  professorGrades      TfgFinalGrade[]  @relation("ProfessorGrade")
+  deliverables         Deliverable[]
+
+  @@map("users")
+}
+
+model Tfg {
+  id            Int      @id @default(autoincrement())
+  title         String   @db.VarChar(200)
+  description   String?  @db.Text
+  academicYear  String?  @db.VarChar(10) @map("academic_year")
+  status        String   @default("activo") @db.VarChar(20)
+  repositoryUrl String?  @db.VarChar(255) @map("repository_url")
+  githubToken   String?  @db.VarChar(255) @map("github_token")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  tutorId Int  @map("tutor_id")
+  tutor   User @relation("TutorTfg", fields: [tutorId], references: [id])
+
+  members      TfgMember[]
+  userStories  UserStory[]
+  sprints      Sprint[]
+  commits      Commit[]
+  evaluations  Evaluation[]
+  finalGrades  TfgFinalGrade[]
+  deliverables Deliverable[]
+
+  @@map("tfgs")
+}
+
+model TfgMember {
+  id        Int     @id @default(autoincrement())
+  scrumRole String? @db.VarChar(30) @map("scrum_role")
+
+  tfgId  Int  @map("tfg_id")
+  tfg    Tfg  @relation(fields: [tfgId], references: [id])
+  userId Int  @map("user_id")
+  user   User @relation(fields: [userId], references: [id])
+
+  @@unique([tfgId, userId])
+  @@map("tfg_members")
+}
+
+model UserStory {
+  id                 Int      @id @default(autoincrement())
+  title              String   @db.VarChar(200)
+  description        String?  @db.Text
+  acceptanceCriteria String?  @db.Text @map("acceptance_criteria")
+  storyPoints        Int?     @map("story_points")
+  priority           Int?
+  status             String   @default("backlog") @db.VarChar(20)
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  tfgId Int @map("tfg_id")
+  tfg   Tfg @relation(fields: [tfgId], references: [id])
+
+  tasks Task[]
+
+  @@map("user_stories")
+}
+
+model Sprint {
+  id        Int       @id @default(autoincrement())
+  name      String    @db.VarChar(100)
+  goal      String?   @db.Text
+  startDate DateTime? @db.Date @map("start_date")
+  endDate   DateTime? @db.Date @map("end_date")
+  status    String    @default("planificado") @db.VarChar(20)
+
+  tfgId Int @map("tfg_id")
+  tfg   Tfg @relation(fields: [tfgId], references: [id])
+
+  tasks         Task[]
+  commits       Commit[]
+  activity      SprintActivity[]
+  evaluations   Evaluation[]
+  retrospective Retrospective?
+  deliverables  Deliverable[]
+
+  @@map("sprints")
+}
+
+model Task {
+  id             Int      @id @default(autoincrement())
+  title          String   @db.VarChar(200)
+  description    String?  @db.Text
+  status         String   @default("to_do") @db.VarChar(20)
+  estimatedHours Decimal? @db.Decimal(5, 2) @map("estimated_hours")
+  actualHours    Decimal? @db.Decimal(5, 2) @map("actual_hours")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  userStoryId Int       @map("user_story_id")
+  userStory   UserStory @relation(fields: [userStoryId], references: [id])
+  sprintId    Int       @map("sprint_id")
+  sprint      Sprint    @relation(fields: [sprintId], references: [id])
+  assignedTo  Int?      @map("assigned_to")
+  assignee    User?     @relation("TaskAssignee", fields: [assignedTo], references: [id])
+
+  commits Commit[]
+
+  @@map("tasks")
+}
+
+model Commit {
+  id           Int      @id @default(autoincrement())
+  hash         String   @unique @db.VarChar(40)
+  message      String?  @db.Text
+  linesAdded   Int      @default(0) @map("lines_added")
+  linesDeleted Int      @default(0) @map("lines_deleted")
+  filesChanged Int      @default(0) @map("files_changed")
+  date         DateTime
+
+  tfgId     Int    @map("tfg_id")
+  tfg       Tfg    @relation(fields: [tfgId], references: [id])
+  taskId    Int?   @map("task_id")
+  task      Task?  @relation(fields: [taskId], references: [id])
+  sprintId  Int    @map("sprint_id")
+  sprint    Sprint @relation(fields: [sprintId], references: [id])
+  studentId Int    @map("student_id")
+  student   User   @relation(fields: [studentId], references: [id])
+
+  @@map("commits")
+}
+
+model SprintActivity {
+  id                   Int     @id @default(autoincrement())
+  totalCommits         Int     @default(0) @map("total_commits")
+  completedTasks       Int     @default(0) @map("completed_tasks")
+  linesAdded           Int     @default(0) @map("lines_added")
+  linesDeleted         Int     @default(0) @map("lines_deleted")
+  completedStoryPoints Int     @default(0) @map("completed_story_points")
+  loggedHours          Decimal @default(0) @db.Decimal(6, 2) @map("logged_hours")
+
+  sprintId  Int    @map("sprint_id")
+  sprint    Sprint @relation(fields: [sprintId], references: [id])
+  studentId Int    @map("student_id")
+  student   User   @relation(fields: [studentId], references: [id])
+
+  @@unique([sprintId, studentId])
+  @@map("sprint_activities")
+}
+
+model Evaluation {
+  id                  Int      @id @default(autoincrement())
+  weight              Int?
+  commitsScore        Decimal? @db.Decimal(4, 2) @map("commits_score")
+  tasksScore          Decimal? @db.Decimal(4, 2) @map("tasks_score")
+  finalScore          Decimal? @db.Decimal(4, 2) @map("final_score")
+  comments            String?  @db.Text
+  strengths           String?  @db.Text
+  improvements        String?  @db.Text
+  aiGenerated         Boolean  @default(false) @map("ai_generated")
+  reviewedByProfessor Boolean  @default(false) @map("reviewed_by_professor")
+  createdAt           DateTime @default(now()) @map("created_at")
+
+  tfgId       Int    @map("tfg_id")
+  tfg         Tfg    @relation(fields: [tfgId], references: [id])
+  sprintId    Int    @map("sprint_id")
+  sprint      Sprint @relation(fields: [sprintId], references: [id])
+  studentId   Int    @map("student_id")
+  student     User   @relation("StudentEvaluation", fields: [studentId], references: [id])
+  professorId Int    @map("professor_id")
+  professor   User   @relation("ProfessorEvaluation", fields: [professorId], references: [id])
+
+  @@map("evaluations")
+}
+
+model TfgFinalGrade {
+  id                  Int      @id @default(autoincrement())
+  sprintsAverage      Decimal? @db.Decimal(4, 2) @map("sprints_average")
+  finalScore          Decimal? @db.Decimal(4, 2) @map("final_score")
+  finalComment        String?  @db.Text @map("final_comment")
+  aiGenerated         Boolean  @default(false) @map("ai_generated")
+  reviewedByProfessor Boolean  @default(false) @map("reviewed_by_professor")
+  createdAt           DateTime @default(now()) @map("created_at")
+
+  tfgId       Int  @map("tfg_id")
+  tfg         Tfg  @relation(fields: [tfgId], references: [id])
+  studentId   Int  @map("student_id")
+  student     User @relation("StudentGrade", fields: [studentId], references: [id])
+  professorId Int  @map("professor_id")
+  professor   User @relation("ProfessorGrade", fields: [professorId], references: [id])
+
+  @@unique([tfgId, studentId])
+  @@map("tfg_final_grades")
+}
+
+model Retrospective {
+  id        Int      @id @default(autoincrement())
+  wentWell  String?  @db.Text @map("went_well")
+  toImprove String?  @db.Text @map("to_improve")
+  actions   String?  @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+
+  sprintId Int    @unique @map("sprint_id")
+  sprint   Sprint @relation(fields: [sprintId], references: [id])
+
+  @@map("retrospectives")
+}
+
+model Deliverable {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.VarChar(200)
+  description String?  @db.Text
+  fileUrl     String?  @db.VarChar(255) @map("file_url")
+  date        DateTime @default(now())
+
+  tfgId      Int    @map("tfg_id")
+  tfg        Tfg    @relation(fields: [tfgId], references: [id])
+  sprintId   Int    @map("sprint_id")
+  sprint     Sprint @relation(fields: [sprintId], references: [id])
+  uploadedBy Int    @map("uploaded_by")
+  uploader   User   @relation(fields: [uploadedBy], references: [id])
+
+  @@map("deliverables")
+}
