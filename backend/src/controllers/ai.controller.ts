@@ -4,6 +4,9 @@ import {
   generateEvaluation,
   getEvaluationsByTfg,
   updateEvaluation,
+  generateFinalGrade,
+  getFinalGradesByTfg,
+  updateFinalGrade,
 } from "../services/ai.service";
 
 export async function generate(req: AuthRequest, res: Response) {
@@ -49,6 +52,49 @@ export async function update(req: AuthRequest, res: Response) {
   try {
     const evaluation = await updateEvaluation(Number(req.params.id), req.body);
     res.json(evaluation);
+  } catch {
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+}
+
+export async function generateFinal(req: AuthRequest, res: Response) {
+  const { studentId } = req.body;
+  const tfgId = Number(req.params.tfgId);
+
+  if (!studentId) {
+    res.status(400).json({ error: "studentId es requerido" });
+    return;
+  }
+
+  try {
+    const grade = await generateFinalGrade(tfgId, Number(studentId), req.user!.id);
+    res.status(201).json(grade);
+  } catch (e: any) {
+    if (e.message === "NO_EVALUATIONS") {
+      res.status(400).json({ error: "El estudiante no tiene evaluaciones de sprint" });
+      return;
+    }
+    if (e.message === "AI_INVALID_RESPONSE" || e.message === "AI_INVALID_JSON") {
+      res.status(500).json({ error: "Error al procesar la respuesta de la IA" });
+      return;
+    }
+    res.status(500).json({ error: "Error al generar la nota final" });
+  }
+}
+
+export async function getFinalGrades(req: AuthRequest, res: Response) {
+  try {
+    const grades = await getFinalGradesByTfg(Number(req.params.tfgId));
+    res.json(grades);
+  } catch {
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+}
+
+export async function updateFinal(req: AuthRequest, res: Response) {
+  try {
+    const grade = await updateFinalGrade(Number(req.params.id), req.body);
+    res.json(grade);
   } catch {
     res.status(500).json({ error: "Error interno del servidor" });
   }

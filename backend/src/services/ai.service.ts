@@ -138,3 +138,108 @@ export async function updateEvaluation(
     data: { ...data, reviewedByProfessor: true },
   });
 }
+
+export async function generateFinalGrade(tfgId: number, studentId: number, professorId: number) {
+  const evaluations = await prisma.evaluation.findMany({
+    where: { tfgId, studentId },
+    include: { sprint: { select: { name: true } } },
+    orderBy: { createdAt: "asc" },
+  });
+
+  if (evaluations.length === 0) throw new Error("NO_EVALUATIONS");
+
+  const validScores = evaluations
+    .filter((e) => e.finalScore !== null)
+    .map((e) => parseFloat(String(e.finalScore)));
+
+  const average = validScores.reduce((a, b) => a + b, 0) / validScores.length;
+
+  const student = await prisma.user.findUnique({
+    where: { id: studentId },
+    select: { name: true },
+  });
+
+  const tfg = await prisma.tfg.findUnique({
+    where: { id: tfgId },
+    select: { title: true },
+  });
+
+  const prompt = `Eres un evaluador académico experto. Resume el rendimiento global de un estudiante en su TFG.
+
+## Datos
+- **Proyecto:** ${tfg?.title}
+- **Estudiante:** ${student?.name}
+- **Evaluaciones por sprint:**
+${evaluations.map((e) => `  - ${e.sprint.name}: nota ${e.finalScore ?? "sin nota"} — ${e.comments?.slice(0, 100)}...`).join("\n")}
+- **Media de sprints:** ${average.toFixed(2)}
+
+Genera un resumen global del trabajo del estudiante durante todo el TFG.
+Devuelve ÚNICAMENTE un JSON válido:
+
+{
+  "finalScore": <número 0-10, puede ajustar ligeramente la media si hay tendencia clara>,
+  "finalComment": "Valoración global de 4-5 frases sobre el rendimiento total del estudiante durante el TFG"
+}`;
+
+  const message = await client.messages.create({
+    model: "claude-sonnet-4-6",
+    max_tokens: 512,
+    messages: [{ role: "user", content: prompt }],
+  });
+
+  const content = message.content[0];
+  if (content.type !== "text") throw new Error("AI_INVALID_RESPONSE");
+
+  const jsonMatch = content.text.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) throw new Error("AI_INVALID_JSON");
+
+  const result = JSON.parse(jsonMatch[0]);
+
+  const existing = await prisma.tfgFinalGrade.findUnique({
+    where: { tfgId_studentId: { tfgId, studentId } },
+  });
+
+  if (existing) {
+    return prisma.tfgFinalGrade.update({
+      where: { id: existing.id },
+      data: {
+        sprintsAverage: average,
+        finalScore: result.finalScore,
+        finalComment: result.finalComment,
+        aiGenerated: true,
+        reviewedByProfessor: false,
+        professorId,
+      },
+    });
+  }
+
+  return prisma.tfgFinalGrade.create({
+    data: {
+      tfgId,
+      studentId,
+      professorId,
+      sprintsAverage: average,
+      finalScore: result.finalScore,
+      finalComment: result.finalComment,
+      aiGenerated: true,
+    },
+  });
+}
+
+export async function getFinalGradesByTfg(tfgId: number) {
+  return prisma.tfgFinalGrade.findMany({
+    where: { tfgId },
+    include: {
+      student: { select: { id: true, name: true, email: true } },
+      professor: { select: { id: true, name: true } },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+}
+
+export async function updateFinalGrade(id: number, data: { finalScore?: number; finalComment?: string }) {
+  return prisma.tfgFinalGrade.update({
+    where: { id },
+    data: { ...data, reviewedByProfessor: true },
+  });
+}
