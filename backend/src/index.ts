@@ -8,6 +8,7 @@ import sprintRoutes from "./routes/sprint.route";
 import userStoryRoutes from "./routes/userStory.routes";
 import taskRoutes from "./routes/task.route";
 import retrospectiveRoutes from "./routes/retrospective.routes";
+import aiRoutes from "./routes/ai.routes";
 import { tfgRouter, oauthRouter } from "./routes/github.routes";
 
 
@@ -26,6 +27,7 @@ app.use("/api/tasks", taskRoutes);
 app.use("/api/tfgs/:tfgId/sprints/:sprintId/retrospective", retrospectiveRoutes);
 app.use("/api/tfgs/:tfgId/github", tfgRouter);
 app.use("/api/github", oauthRouter);
+app.use("/api/tfgs/:tfgId/evaluations", aiRoutes);
 
 app.get("/health", (_req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
