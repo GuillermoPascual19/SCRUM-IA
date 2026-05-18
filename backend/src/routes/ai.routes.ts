@@ -1,5 +1,12 @@
 import { Router } from "express";
-import { generate, getByTfg, update } from "../controllers/ai.controller";
+import {
+  generate,
+  getByTfg,
+  update,
+  generateFinal,
+  getFinalGrades,
+  updateFinal,
+} from "../controllers/ai.controller";
 import { authenticate, requireRole } from "../middleware/auth";
 
 const router = Router({ mergeParams: true });
@@ -7,5 +14,9 @@ const router = Router({ mergeParams: true });
 router.post("/generate", authenticate, requireRole("profesor", "coordinador", "admin"), generate);
 router.get("/", authenticate, getByTfg);
 router.put("/:id", authenticate, requireRole("profesor", "coordinador", "admin"), update);
+
+router.post("/final/generate", authenticate, requireRole("profesor", "coordinador", "admin"), generateFinal);
+router.get("/final", authenticate, getFinalGrades);
+router.put("/final/:id", authenticate, requireRole("profesor", "coordinador", "admin"), updateFinal);
 
 export default router;
