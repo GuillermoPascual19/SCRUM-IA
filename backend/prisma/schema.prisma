@@ -18,7 +18,8 @@ model User {
   password  String   @db.VarChar(255)
   role      String   @db.VarChar(20)
   createdAt DateTime @default(now()) @map("created_at")
-
+  githubToken String? @db.VarChar(255) @map("github_token")
+  
   tutoredTfgs          Tfg[]            @relation("TutorTfg")
   tfgMemberships       TfgMember[]
   assignedTasks        Task[]           @relation("TaskAssignee")
@@ -139,14 +140,14 @@ model Commit {
   filesChanged Int      @default(0) @map("files_changed")
   date         DateTime
 
-  tfgId     Int    @map("tfg_id")
-  tfg       Tfg    @relation(fields: [tfgId], references: [id])
-  taskId    Int?   @map("task_id")
-  task      Task?  @relation(fields: [taskId], references: [id])
-  sprintId  Int    @map("sprint_id")
-  sprint    Sprint @relation(fields: [sprintId], references: [id])
-  studentId Int    @map("student_id")
-  student   User   @relation(fields: [studentId], references: [id])
+  tfgId     Int     @map("tfg_id")
+  tfg       Tfg     @relation(fields: [tfgId], references: [id])
+  taskId    Int?    @map("task_id")
+  task      Task?   @relation(fields: [taskId], references: [id])
+  sprintId  Int?    @map("sprint_id")
+  sprint    Sprint? @relation(fields: [sprintId], references: [id])
+  studentId Int?    @map("student_id")
+  student   User?   @relation(fields: [studentId], references: [id])
 
   @@map("commits")
 }

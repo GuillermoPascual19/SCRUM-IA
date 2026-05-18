@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useAuthStore } from "@/store/auth.store";
 import api from "@/lib/axios";
 import { Tfg, Sprint, Task } from "@/lib/types";
-import Link from "next/link";
 import {
   AreaChart,
   Area,
@@ -13,7 +12,6 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  ReferenceLine,
 } from "recharts";
 
 const burndownData = [
@@ -42,6 +40,11 @@ export default function DashboardPage() {
   const [activeSprint, setActiveSprint] = useState<Sprint | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
+  const [githubStatus, setGithubStatus] = useState<{
+    connected: boolean;
+    username: string | null;
+    avatarUrl?: string;
+  }>({ connected: false, username: null });
 
   useEffect(() => {
     async function fetchData() {
@@ -64,8 +67,36 @@ export default function DashboardPage() {
         setLoading(false);
       }
     }
+
+    async function checkGithub() {
+      try {
+        const { data } = await api.get("/github/status");
+        setGithubStatus(data);
+      } catch {
+        console.error("Error al comprobar GitHub");
+      }
+    }
+
     fetchData();
+    checkGithub();
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("github") === "success") {
+      checkGithub();
+      window.history.replaceState({}, "", "/dashboard");
+    }
   }, []);
+
+  function connectGithub() {
+    api.get("/github/authorize").then(({ data }) => {
+      window.location.href = data.url;
+    });
+  }
+
+  async function disconnectGithub() {
+    await api.delete("/github/disconnect");
+    setGithubStatus({ connected: false, username: null });
+  }
 
   const doneTasks = tasks.filter((t) => t.status === "done");
   const inProgressTasks = tasks.filter((t) => t.status === "in_progress");
@@ -100,6 +131,42 @@ export default function DashboardPage() {
             ✦ Generar informe IA
           </button>
         </div>
+      </div>
+
+      <div className="flex items-center justify-between bg-[var(--card)] rounded-xl p-4 border border-[var(--border)]">
+        <div className="flex items-center gap-3">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="text-[var(--foreground)]">
+            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
+          </svg>
+          <div>
+            <p className="text-sm font-medium text-[var(--foreground)]">GitHub</p>
+            <p className="text-xs text-[var(--muted-foreground)]">
+              {githubStatus.connected
+                ? `Conectado como @${githubStatus.username}`
+                : "Conecta tu cuenta para sincronizar commits"}
+            </p>
+          </div>
+        </div>
+        {githubStatus.connected ? (
+          <div className="flex items-center gap-2">
+            <span className="text-xs px-2 py-1 rounded-full bg-green-500/20 text-green-400 font-medium">
+              ✓ Conectado
+            </span>
+            <button
+              onClick={disconnectGithub}
+              className="text-xs text-[var(--muted-foreground)] hover:text-red-500 transition-colors"
+            >
+              Desconectar
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={connectGithub}
+            className="px-4 py-2 rounded-lg bg-[var(--primary)] text-[var(--primary-foreground)] text-sm font-medium hover:opacity-90 transition-opacity"
+          >
+            Conectar GitHub
+          </button>
+        )}
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
