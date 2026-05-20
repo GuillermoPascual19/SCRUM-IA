@@ -80,6 +80,7 @@ model UserStory {
   priority           Int?
   status             String   @default("backlog") @db.VarChar(20)
   createdAt          DateTime @default(now()) @map("created_at")
+  completedAt        DateTime? @map("completed_at")
 
   tfgId Int @map("tfg_id")
   tfg   Tfg @relation(fields: [tfgId], references: [id])

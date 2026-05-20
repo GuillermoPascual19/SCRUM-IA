@@ -6,6 +6,7 @@ import {
   createNewSprint,
   updateExistingSprint,
   deleteExistingSprint,
+  getBurndownData,
 } from "../services/sprint.service";
 
 export async function getByTfg(req: AuthRequest, res: Response) {
@@ -93,6 +94,19 @@ export async function remove(req: AuthRequest, res: Response) {
     }
     if (e.message === "FORBIDDEN") {
       res.status(403).json({ error: "Acceso denegado" });
+      return;
+    }
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+}
+
+export async function burndown(req: AuthRequest, res: Response) {
+  try {
+    const data = await getBurndownData(Number(req.params.id));
+    res.json(data);
+  } catch (e: any) {
+    if (e.message === "SPRINT_NOT_FOUND") {
+      res.status(404).json({ error: "Sprint no encontrado" });
       return;
     }
     res.status(500).json({ error: "Error interno del servidor" });

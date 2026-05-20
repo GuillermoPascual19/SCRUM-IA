@@ -62,7 +62,14 @@ export async function updateExistingUserStory(
     throw new Error("FORBIDDEN");
   }
 
-  return updateUserStory(id, data);
+  const updateData: any = { ...data };
+  if (data.status === "completada" && story.status !== "completada") {
+    updateData.completedAt = new Date();
+  } else if (data.status && data.status !== "completada") {
+    updateData.completedAt = null;
+  }
+
+  return updateUserStory(id, updateData);
 }
 
 export async function deleteExistingUserStory(

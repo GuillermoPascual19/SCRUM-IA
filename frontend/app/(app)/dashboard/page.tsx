@@ -14,32 +14,14 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const burndownData = [
-  { day: "D1", real: 45, ideal: 45 },
-  { day: "D2", real: 42, ideal: 40 },
-  { day: "D3", real: 38, ideal: 35 },
-  { day: "D4", real: 35, ideal: 30 },
-  { day: "D5", real: 30, ideal: 25 },
-  { day: "D6", real: 28, ideal: 20 },
-  { day: "D7", real: 22, ideal: 15 },
-  { day: "D8", real: null, ideal: 10 },
-  { day: "D9", real: null, ideal: 5 },
-  { day: "D10", real: null, ideal: 0 },
-];
-
-const recentActivity = [
-  { initials: "LM", name: "Lucía M.", role: "Developer", action: "merge PR #84 · Auth GitHub", time: "hace 12 min" },
-  { initials: "JR", name: "Jorge R.", role: "Scrum Master", action: "comentó retrospectiva sprint 1", time: "hace 1 h" },
-  { initials: "PS", name: "Prof. Sanz", role: "Profesor", action: "validó entregable E2", time: "hace 3 h" },
-  { initials: "AP", name: "Ana P.", role: "PO", action: "movió 'Burn-down' a Done", time: "hace 5 h" },
-];
-
 export default function DashboardPage() {
   const { user } = useAuthStore();
   const [tfgs, setTfgs] = useState<Tfg[]>([]);
   const [activeSprint, setActiveSprint] = useState<Sprint | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
+  const [burndownData, setBurndownData] = useState<any[]>([]);
+  const [recentCommits, setRecentCommits] = useState<any[]>([]);
   const [githubStatus, setGithubStatus] = useState<{
     connected: boolean;
     username: string | null;
@@ -57,8 +39,14 @@ export default function DashboardPage() {
           const active = sprintData.find((s: Sprint) => s.status === "activo") || sprintData[0];
           if (active) {
             setActiveSprint(active);
-            const { data: taskData } = await api.get(`/tasks/sprint/${active.id}`);
-            setTasks(taskData);
+            const [taskRes, burndownRes, commitRes] = await Promise.all([
+              api.get(`/tasks/sprint/${active.id}`),
+              api.get(`/tfgs/${tfgData[0].id}/sprints/${active.id}/burndown`),
+              api.get(`/tfgs/${tfgData[0].id}/github/commits`),
+            ]);
+            setTasks(taskRes.data);
+            setBurndownData(burndownRes.data.days || []);
+            setRecentCommits(commitRes.data.slice(0, 4));
           }
         }
       } catch {
@@ -190,73 +178,90 @@ export default function DashboardPage() {
           <p className="text-xs text-[var(--muted-foreground)] mt-1">proyectos</p>
         </div>
         <div className="bg-[var(--card)] rounded-xl p-5 border border-[var(--border)]">
-          <p className="text-xs text-[var(--muted-foreground)] uppercase tracking-wide">Pendientes</p>
-          <p className="text-3xl font-bold text-[var(--foreground)] mt-2">{todoTasks.length}</p>
-          <p className="text-xs text-[var(--muted-foreground)] mt-1">tareas por hacer</p>
+          <p className="text-xs text-[var(--muted-foreground)] uppercase tracking-wide">Commits</p>
+          <p className="text-3xl font-bold text-[var(--foreground)] mt-2">{recentCommits.length}</p>
+          <p className="text-xs text-[var(--muted-foreground)] mt-1">sincronizados</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="md:col-span-2 bg-[var(--card)] rounded-xl p-5 border border-[var(--border)]">
-          <h2 className="text-base font-semibold text-[var(--foreground)] mb-1">Burn-down del sprint</h2>
+          <h2 className="text-base font-semibold text-[var(--foreground)] mb-1">
+            Burn-down del sprint
+            {activeSprint && <span className="text-xs text-[var(--muted-foreground)] ml-2">· {activeSprint.name}</span>}
+          </h2>
           <p className="text-xs text-[var(--muted-foreground)] mb-4">Story Points restantes · ideal vs real</p>
-          <ResponsiveContainer width="100%" height={220}>
-            <AreaChart data={burndownData}>
-              <defs>
-                <linearGradient id="colorReal" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="var(--primary)" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-              <XAxis dataKey="day" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
-              <YAxis tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
-              <Tooltip
-                contentStyle={{
-                  background: "var(--card)",
-                  border: "1px solid var(--border)",
-                  borderRadius: "8px",
-                  fontSize: "12px",
-                }}
-              />
-              <Area
-                type="monotone"
-                dataKey="ideal"
-                stroke="var(--muted-foreground)"
-                strokeDasharray="5 5"
-                fill="none"
-                strokeWidth={1.5}
-              />
-              <Area
-                type="monotone"
-                dataKey="real"
-                stroke="var(--primary)"
-                fill="url(#colorReal)"
-                strokeWidth={2}
-                connectNulls={false}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+          {burndownData.length === 0 ? (
+            <div className="flex items-center justify-center h-[220px] text-[var(--muted-foreground)] text-sm">
+              Sin datos de burn-down — añade story points a las historias
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height={220}>
+              <AreaChart data={burndownData}>
+                <defs>
+                  <linearGradient id="colorReal" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="var(--primary)" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis dataKey="day" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
+                <YAxis tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
+                <Tooltip
+                  contentStyle={{
+                    background: "var(--card)",
+                    border: "1px solid var(--border)",
+                    borderRadius: "8px",
+                    fontSize: "12px",
+                  }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="ideal"
+                  stroke="var(--muted-foreground)"
+                  strokeDasharray="5 5"
+                  fill="none"
+                  strokeWidth={1.5}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="real"
+                  stroke="var(--primary)"
+                  fill="url(#colorReal)"
+                  strokeWidth={2}
+                  connectNulls={false}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          )}
         </div>
 
         <div className="bg-[var(--card)] rounded-xl p-5 border border-[var(--border)]">
           <h2 className="text-base font-semibold text-[var(--foreground)] mb-4">Actividad reciente</h2>
-          <div className="space-y-4">
-            {recentActivity.map((activity, i) => (
-              <div key={i} className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full bg-[var(--primary)] flex items-center justify-center text-[var(--primary-foreground)] text-xs font-bold shrink-0">
-                  {activity.initials}
+          {recentCommits.length === 0 ? (
+            <p className="text-sm text-[var(--muted-foreground)] text-center py-4">Sin actividad reciente</p>
+          ) : (
+            <div className="space-y-4">
+              {recentCommits.map((commit: any, i: number) => (
+                <div key={i} className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-full bg-[var(--primary)] flex items-center justify-center text-[var(--primary-foreground)] text-xs font-bold shrink-0">
+                    {commit.student?.name?.charAt(0).toUpperCase() || "?"}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-[var(--foreground)]">
+                      {commit.student?.name || "Desconocido"}
+                    </p>
+                    <p className="text-xs text-[var(--muted-foreground)] truncate">
+                      {commit.message?.split("\n")[0]}
+                    </p>
+                  </div>
+                  <span className="text-xs text-[var(--muted-foreground)] shrink-0">
+                    {new Date(commit.date).toLocaleDateString("es-ES")}
+                  </span>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-[var(--foreground)]">
-                    {activity.name} · <span className="text-[var(--muted-foreground)] font-normal">{activity.role}</span>
-                  </p>
-                  <p className="text-xs text-[var(--muted-foreground)] truncate">{activity.action}</p>
-                </div>
-                <span className="text-xs text-[var(--muted-foreground)] shrink-0">{activity.time}</span>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

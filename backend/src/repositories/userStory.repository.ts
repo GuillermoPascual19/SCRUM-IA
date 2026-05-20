@@ -33,6 +33,7 @@ export async function updateUserStory(id: number, data: {
   storyPoints?: number;
   priority?: number;
   status?: string;
+  completedAt?: Date | null;
 }) {
   return prisma.userStory.update({ where: { id }, data });
 }
