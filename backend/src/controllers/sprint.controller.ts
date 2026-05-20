@@ -7,6 +7,7 @@ import {
   updateExistingSprint,
   deleteExistingSprint,
   getBurndownData,
+  getSprintPlanner,
 } from "../services/sprint.service";
 
 export async function getByTfg(req: AuthRequest, res: Response) {
@@ -109,6 +110,15 @@ export async function burndown(req: AuthRequest, res: Response) {
       res.status(404).json({ error: "Sprint no encontrado" });
       return;
     }
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+}
+
+export async function planner(req: AuthRequest, res: Response) {
+  try {
+    const data = await getSprintPlanner(Number(req.params.tfgId));
+    res.json(data);
+  } catch {
     res.status(500).json({ error: "Error interno del servidor" });
   }
 }
