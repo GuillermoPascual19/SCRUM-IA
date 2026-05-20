@@ -25,6 +25,7 @@ export default function Sidebar() {
   const tfgNav = tfgId ? [
     { name: "Resumen", href: `/tfgs/${tfgId}`, icon: "◉" },
     { name: "Sprints", href: `/tfgs/${tfgId}/sprints`, icon: "◎" },
+    { name: "Planificación", href: `/tfgs/${tfgId}/planner`, icon: "📅" },
     { name: "Backlog", href: `/tfgs/${tfgId}/backlog`, icon: "☰" },
     { name: "Evaluación IA", href: `/tfgs/${tfgId}/grades`, icon: "✦" },
   ] : [];

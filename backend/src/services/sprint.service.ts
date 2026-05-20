@@ -137,3 +137,63 @@ export async function getBurndownData(sprintId: number) {
 
   return { days, totalPoints, sprintName: sprint.name };
 }
+
+export async function getSprintPlanner(tfgId: number) {
+  const sprints = await prisma.sprint.findMany({
+    where: { tfgId },
+    orderBy: { startDate: "asc" },
+  });
+
+  const established = sprints.filter((s) => s.startDate && s.endDate);
+
+  let avgDuration = 10;
+  let avgGap = 1;
+
+  if (established.length >= 1) {
+    const durations = established.map((s) => {
+      const start = new Date(s.startDate!);
+      const end = new Date(s.endDate!);
+      return Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    });
+    avgDuration = Math.round(durations.reduce((a, b) => a + b, 0) / durations.length);
+  }
+
+  if (established.length >= 2) {
+    const gaps = [];
+    for (let i = 1; i < established.length; i++) {
+      const prevEnd = new Date(established[i - 1].endDate!);
+      const nextStart = new Date(established[i].startDate!);
+      const gap = Math.ceil((nextStart.getTime() - prevEnd.getTime()) / (1000 * 60 * 60 * 24));
+      gaps.push(gap);
+    }
+    avgGap = Math.round(gaps.reduce((a, b) => a + b, 0) / gaps.length);
+  }
+
+  const predictions = [];
+  const lastSprint = established[established.length - 1];
+
+  if (lastSprint?.endDate) {
+    let cursor = new Date(lastSprint.endDate);
+    for (let i = 1; i <= 3; i++) {
+      cursor.setDate(cursor.getDate() + avgGap);
+      const predStart = new Date(cursor);
+      cursor.setDate(cursor.getDate() + avgDuration - 1);
+      const predEnd = new Date(cursor);
+      predictions.push({
+        id: `pred-${i}`,
+        name: `Sprint ${established.length + i} · Previsto`,
+        description: "Generado en base a histórico (cadencia media)",
+        startDate: predStart.toISOString().split("T")[0],
+        endDate: predEnd.toISOString().split("T")[0],
+        status: "previsto",
+        isPrediction: true,
+      });
+    }
+  }
+
+  return {
+    sprints: sprints.map((s) => ({ ...s, isPrediction: false })),
+    predictions,
+    forecast: { avgDuration, avgGap },
+  };
+}
