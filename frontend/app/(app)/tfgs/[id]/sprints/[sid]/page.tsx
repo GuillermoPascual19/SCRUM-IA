@@ -125,6 +125,12 @@ export default function KanbanPage() {
           >
             + Nueva tarea
           </button>
+          <button
+            onClick={() => router.push(`/tfgs/${id}/sprints/${sid}/retrospective`)}
+            className="px-4 py-2 rounded-lg border border-[var(--border)] text-sm font-medium text-[var(--foreground)] hover:bg-[var(--accent)] transition-colors"
+          >
+            📝 Retrospectiva
+          </button>
         </div>
       </div>
 

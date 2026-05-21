@@ -243,3 +243,80 @@ export async function updateFinalGrade(id: number, data: { finalScore?: number; 
     data: { ...data, reviewedByProfessor: true },
   });
 }
+
+export async function generateRetroInsights(
+  tfgId: number,
+  sprintId: number
+) {
+  const [sprint, commits, tasks, retro] = await Promise.all([
+    prisma.sprint.findUnique({
+      where: { id: sprintId },
+      select: { name: true, startDate: true, endDate: true },
+    }),
+    prisma.commit.findMany({
+      where: { tfgId, sprintId },
+      include: { student: { select: { name: true } } },
+    }),
+    prisma.task.findMany({
+      where: { sprintId },
+      include: { assignee: { select: { name: true } } },
+    }),
+    prisma.retrospective.findUnique({
+      where: { sprintId },
+    }),
+  ]);
+
+  if (!sprint) throw new Error("SPRINT_NOT_FOUND");
+
+  const doneTasks = tasks.filter((t) => t.status === "done").length;
+  const commitsByAuthor: Record<string, number> = {};
+  commits.forEach((c) => {
+    const name = c.student?.name || "desconocido";
+    commitsByAuthor[name] = (commitsByAuthor[name] || 0) + 1;
+  });
+
+  let retroNotes = "";
+  if (retro) {
+    const wentWell = tryParseNotes(retro.wentWell);
+    const toImprove = tryParseNotes(retro.toImprove);
+    retroNotes = `
+Cosas que fueron bien: ${wentWell.map((n: any) => n.text).join(", ") || "ninguna registrada"}
+Cosas a mejorar: ${toImprove.map((n: any) => n.text).join(", ") || "ninguna registrada"}`;
+  }
+
+  const prompt = `Eres un coach ágil experto. Analiza los datos de este sprint y genera exactamente 3 insights accionables para el equipo.
+
+SPRINT: ${sprint.name}
+COMMITS: ${commits.length} commits en total
+COMMITS POR PERSONA: ${Object.entries(commitsByAuthor).map(([k, v]) => `${k}: ${v}`).join(", ") || "sin datos"}
+TAREAS: ${doneTasks}/${tasks.length} completadas
+${retroNotes}
+
+Devuelve ÚNICAMENTE un JSON válido con esta estructura:
+[
+  { "tipo": "Patrón detectado", "texto": "..." },
+  { "tipo": "Riesgo identificado", "texto": "..." },
+  { "tipo": "Recomendación", "texto": "..." }
+]
+
+Sé específico con los datos reales. Máximo 2 frases por insight.`;
+
+  const message = await client.messages.create({
+    model: "claude-sonnet-4-6",
+    max_tokens: 512,
+    messages: [{ role: "user", content: prompt }],
+  });
+
+  const content = message.content[0];
+  if (content.type !== "text") throw new Error("AI_INVALID_RESPONSE");
+
+  const jsonMatch = content.text.match(/\[[\s\S]*\]/);
+  if (!jsonMatch) throw new Error("AI_INVALID_JSON");
+
+  return JSON.parse(jsonMatch[0]);
+}
+
+function tryParseNotes(val: string | null): any[] {
+  if (!val) return [];
+  try { return JSON.parse(val); } catch { return []; }
+}
