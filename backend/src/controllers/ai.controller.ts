@@ -7,6 +7,7 @@ import {
   generateFinalGrade,
   getFinalGradesByTfg,
   updateFinalGrade,
+  generateRetroInsights,
 } from "../services/ai.service";
 
 export async function generate(req: AuthRequest, res: Response) {
@@ -97,5 +98,21 @@ export async function updateFinal(req: AuthRequest, res: Response) {
     res.json(grade);
   } catch {
     res.status(500).json({ error: "Error interno del servidor" });
+  }
+}
+
+export async function retroInsights(req: AuthRequest, res: Response) {
+  const tfgId = Number(req.params.tfgId);
+  const sprintId = Number(req.params.sprintId);
+
+  try {
+    const insights = await generateRetroInsights(tfgId, sprintId);
+    res.json(insights);
+  } catch (e: any) {
+    if (e.message === "SPRINT_NOT_FOUND") {
+      res.status(404).json({ error: "Sprint no encontrado" });
+      return;
+    }
+    res.status(500).json({ error: "Error al generar insights" });
   }
 }

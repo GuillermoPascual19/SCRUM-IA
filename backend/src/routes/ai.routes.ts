@@ -6,6 +6,7 @@ import {
   generateFinal,
   getFinalGrades,
   updateFinal,
+  retroInsights,
 } from "../controllers/ai.controller";
 import { authenticate, requireRole } from "../middleware/auth";
 
@@ -18,5 +19,6 @@ router.put("/:id", authenticate, requireRole("profesor", "coordinador", "admin")
 router.post("/final/generate", authenticate, requireRole("profesor", "coordinador", "admin"), generateFinal);
 router.get("/final", authenticate, getFinalGrades);
 router.put("/final/:id", authenticate, requireRole("profesor", "coordinador", "admin"), updateFinal);
+router.get("/retro-insights/:sprintId", authenticate, retroInsights);
 
 export default router;
