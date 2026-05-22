@@ -36,6 +36,10 @@ export default function TfgsPage() {
   const [form, setForm] = useState({ title: "", description: "", academicYear: "" });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [showRepoModal, setShowRepoModal] = useState(false);
+  const [repoTfgId, setRepoTfgId] = useState<number | null>(null);
+  const [repoUrl, setRepoUrl] = useState("");
+  const [savingRepo, setSavingRepo] = useState(false);
 
   useEffect(() => { fetchTfgs(); }, []);
 
@@ -47,9 +51,7 @@ export default function TfgsPage() {
         t.description?.toLowerCase().includes(search.toLowerCase())
       );
     }
-    if (filter !== "todos") {
-      result = result.filter((t) => t.status === filter);
-    }
+    if (filter !== "todos") result = result.filter((t) => t.status === filter);
     setFiltered(result);
   }, [search, filter, tfgs]);
 
@@ -81,6 +83,23 @@ export default function TfgsPage() {
     }
   }
 
+  async function handleSaveRepo(e: React.FormEvent) {
+    e.preventDefault();
+    if (!repoTfgId) return;
+    setSavingRepo(true);
+    try {
+      await api.put(`/tfgs/${repoTfgId}`, { repositoryUrl: repoUrl });
+      setShowRepoModal(false);
+      setRepoUrl("");
+      setRepoTfgId(null);
+      fetchTfgs();
+    } catch {
+      console.error("Error al vincular repositorio");
+    } finally {
+      setSavingRepo(false);
+    }
+  }
+
   const stats = {
     total: tfgs.length,
     activos: tfgs.filter((t) => t.status === "activo").length,
@@ -92,9 +111,7 @@ export default function TfgsPage() {
     <div className="space-y-6">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-xs font-semibold text-[var(--primary)] uppercase tracking-wider mb-1">
-            Mis Proyectos
-          </p>
+          <p className="text-xs font-semibold text-[var(--primary)] uppercase tracking-wider mb-1">Mis Proyectos</p>
           <h1 className="text-3xl font-bold text-[var(--foreground)]">
             {isProfessor(user?.role) ? "TFGs que tutorizas" : "TFGs vinculados a tu cuenta"}
           </h1>
@@ -105,9 +122,6 @@ export default function TfgsPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <button className="flex items-center gap-2 px-4 py-2 rounded-lg border border-[var(--border)] text-sm font-medium text-[var(--foreground)] hover:bg-[var(--accent)] transition-colors">
-            ⎇ Vincular repo
-          </button>
           {isProfessor(user?.role) && (
             <button
               onClick={() => setShowForm(!showForm)}
@@ -141,42 +155,35 @@ export default function TfgsPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2">
                 <label className="block text-sm font-medium text-[var(--foreground)] mb-1">Título</label>
-                <input
-                  type="text"
-                  required
-                  value={form.title}
+                <input type="text" required value={form.title}
                   onChange={(e) => setForm({ ...form, title: e.target.value })}
                   className="w-full border border-[var(--border)] rounded-lg px-3 py-2 text-sm bg-[var(--background)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
-                  placeholder="Título del proyecto"
-                />
+                  placeholder="Título del proyecto" />
               </div>
               <div className="col-span-2">
                 <label className="block text-sm font-medium text-[var(--foreground)] mb-1">Descripción</label>
-                <textarea
-                  value={form.description}
+                <textarea value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
                   rows={2}
                   className="w-full border border-[var(--border)] rounded-lg px-3 py-2 text-sm bg-[var(--background)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
-                  placeholder="Descripción del proyecto"
-                />
+                  placeholder="Descripción del proyecto" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-[var(--foreground)] mb-1">Curso académico</label>
-                <input
-                  type="text"
-                  value={form.academicYear}
+                <input type="text" value={form.academicYear}
                   onChange={(e) => setForm({ ...form, academicYear: e.target.value })}
                   className="w-full border border-[var(--border)] rounded-lg px-3 py-2 text-sm bg-[var(--background)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
-                  placeholder="2024-2025"
-                />
+                  placeholder="2024-2025" />
               </div>
             </div>
             {error && <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
             <div className="flex gap-2">
-              <button type="submit" disabled={saving} className="px-4 py-2 rounded-lg bg-[var(--primary)] text-[var(--primary-foreground)] text-sm font-medium hover:opacity-90 disabled:opacity-50">
+              <button type="submit" disabled={saving}
+                className="px-4 py-2 rounded-lg bg-[var(--primary)] text-[var(--primary-foreground)] text-sm font-medium hover:opacity-90 disabled:opacity-50">
                 {saving ? "Guardando..." : "Crear TFG"}
               </button>
-              <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 rounded-lg border border-[var(--border)] text-sm font-medium text-[var(--foreground)] hover:bg-[var(--accent)]">
+              <button type="button" onClick={() => setShowForm(false)}
+                className="px-4 py-2 rounded-lg border border-[var(--border)] text-sm font-medium text-[var(--foreground)] hover:bg-[var(--accent)]">
                 Cancelar
               </button>
             </div>
@@ -187,25 +194,16 @@ export default function TfgsPage() {
       <div className="flex flex-col md:flex-row gap-3">
         <div className="relative flex-1">
           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)] text-sm">🔍</span>
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+          <input type="text" value={search} onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-9 pr-4 py-2 border border-[var(--border)] rounded-lg text-sm bg-[var(--card)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
-            placeholder="Buscar por nombre, tutor o repositorio..."
-          />
+            placeholder="Buscar por nombre, tutor o repositorio..." />
         </div>
         <div className="flex gap-2">
           {["todos", "activo", "revision", "completado"].map((f) => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
+            <button key={f} onClick={() => setFilter(f)}
               className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                filter === f
-                  ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
-                  : "border border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--accent)]"
-              }`}
-            >
+                filter === f ? "bg-[var(--primary)] text-[var(--primary-foreground)]" : "border border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--accent)]"
+              }`}>
               {f === "todos" ? "Todos" : f === "activo" ? "Activos" : f === "revision" ? "Revisión" : "Cerrados"}
             </button>
           ))}
@@ -221,11 +219,9 @@ export default function TfgsPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {filtered.map((tfg) => (
-            <div
-              key={tfg.id}
+            <div key={tfg.id}
               className="bg-[var(--card)] rounded-xl p-5 border border-[var(--border)] hover:border-[var(--primary)] transition-colors cursor-pointer"
-              onClick={() => router.push(`/tfgs/${tfg.id}`)}
-            >
+              onClick={() => router.push(`/tfgs/${tfg.id}`)}>
               <div className="flex items-start justify-between mb-2">
                 <div className="flex items-center gap-2">
                   <span className={`w-2 h-2 rounded-full ${statusColors[tfg.status] || "bg-gray-400"}`} />
@@ -237,8 +233,7 @@ export default function TfgsPage() {
                   </span>
                 </div>
                 <span className="text-sm font-bold text-[var(--primary)]">
-                  ✦ —
-                  <span className="text-xs text-[var(--muted-foreground)] ml-1">NOTA IA</span>
+                  ✦ — <span className="text-xs text-[var(--muted-foreground)] ml-1">NOTA IA</span>
                 </span>
               </div>
 
@@ -252,16 +247,12 @@ export default function TfgsPage() {
               </p>
 
               {tfg.description && (
-                <p className="text-sm text-[var(--muted-foreground)] line-clamp-2 mb-3">
-                  {tfg.description}
-                </p>
+                <p className="text-sm text-[var(--muted-foreground)] line-clamp-2 mb-3">{tfg.description}</p>
               )}
 
               <div className="w-full bg-[var(--border)] rounded-full h-1 mb-3">
-                <div
-                  className="bg-[var(--primary)] h-1 rounded-full"
-                  style={{ width: tfg.status === "completado" ? "100%" : tfg.status === "activo" ? "50%" : "10%" }}
-                />
+                <div className="bg-[var(--primary)] h-1 rounded-full"
+                  style={{ width: tfg.status === "completado" ? "100%" : tfg.status === "activo" ? "50%" : "10%" }} />
               </div>
 
               {isProfessor(user?.role) ? (
@@ -301,18 +292,63 @@ export default function TfgsPage() {
                 </span>
                 <div className="flex items-center gap-3">
                   {isProfessor(user?.role) && (
-                    <button
-                      onClick={(e) => e.stopPropagation()}
-                      className="text-xs text-[var(--primary)] font-medium hover:underline"
-                    >
-                      ✦ Evaluar IA
-                    </button>
+                    <>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setRepoTfgId(tfg.id);
+                          setRepoUrl(tfg.repositoryUrl || "");
+                          setShowRepoModal(true);
+                        }}
+                        className="text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)] font-medium transition-colors"
+                      >
+                        ⎇ {tfg.repositoryUrl ? "Cambiar repo" : "Vincular repo"}
+                      </button>
+                      <button
+                        onClick={(e) => e.stopPropagation()}
+                        className="text-xs text-[var(--primary)] font-medium hover:underline"
+                      >
+                        ✦ Evaluar IA
+                      </button>
+                    </>
                   )}
                   <span className="text-xs text-[var(--primary)] font-medium">Abrir proyecto →</span>
                 </div>
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {showRepoModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-[var(--card)] rounded-xl p-6 w-full max-w-md border border-[var(--border)] space-y-4">
+            <h2 className="text-base font-semibold text-[var(--foreground)]">Vincular repositorio GitHub</h2>
+            <form onSubmit={handleSaveRepo} className="space-y-3">
+              <div>
+                <label className="block text-xs font-medium text-[var(--muted-foreground)] mb-1">
+                  URL del repositorio
+                </label>
+                <input type="url" required value={repoUrl}
+                  onChange={(e) => setRepoUrl(e.target.value)}
+                  className="w-full border border-[var(--border)] rounded-lg px-3 py-2 text-sm bg-[var(--background)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
+                  placeholder="https://github.com/usuario/repositorio" />
+              </div>
+              <p className="text-xs text-[var(--muted-foreground)]">
+                ⎇ El repositorio debe ser accesible por la GitHub App instalada.
+              </p>
+              <div className="flex gap-2">
+                <button type="submit" disabled={savingRepo}
+                  className="flex-1 py-2 rounded-lg bg-[var(--primary)] text-[var(--primary-foreground)] text-sm font-medium hover:opacity-90 disabled:opacity-50">
+                  {savingRepo ? "Guardando..." : "Vincular"}
+                </button>
+                <button type="button" onClick={() => { setShowRepoModal(false); setRepoUrl(""); }}
+                  className="flex-1 py-2 rounded-lg border border-[var(--border)] text-sm font-medium text-[var(--foreground)] hover:bg-[var(--accent)]">
+                  Cancelar
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>
