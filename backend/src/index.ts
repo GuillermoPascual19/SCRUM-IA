@@ -20,6 +20,7 @@ const PORT = process.env.PORT || 4000;
 app.use(cors({ origin: process.env.FRONTEND_URL || "http://localhost:3000" }));
 app.use(express.json());
 
+//TODO: DELETE THIS COMMENT; ITS JUST TO TEST DEPLOYMENT
 app.use("/api/auth", authRoutes);
 app.use("/api/tfgs", tfgRoutes);
 app.use("/api/tfgs/:tfgId/members", memberRoutes);
