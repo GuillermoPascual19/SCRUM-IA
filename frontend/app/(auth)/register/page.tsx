@@ -119,14 +119,10 @@ export default function RegisterPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-xs font-medium text-gray-400 mb-1.5">Nombre completo</label>
-              <input
-                type="text"
-                required
-                value={form.name}
+              <input type="text" required value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                 className="w-full px-4 py-2.5 rounded-lg bg-[#111] border border-[#333] text-white text-sm placeholder-gray-600 focus:outline-none focus:border-[#22c55e] transition-colors"
-                placeholder="Ada Lovelace"
-              />
+                placeholder="Ada Lovelace" />
             </div>
 
             <div>
@@ -135,36 +131,33 @@ export default function RegisterPage() {
                 <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
                 </svg>
-                <input
-                  type="email"
-                  required
-                  value={form.email}
+                <input type="email" required value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
                   className="w-full pl-9 pr-4 py-2.5 rounded-lg bg-[#111] border border-[#333] text-white text-sm placeholder-gray-600 focus:outline-none focus:border-[#22c55e] transition-colors"
-                  placeholder="alumno@uni.edu"
-                />
+                  placeholder="alumno@uni.edu" />
               </div>
             </div>
 
             <div>
               <label className="block text-xs font-medium text-gray-400 mb-1.5">Contraseña</label>
-              <input
-                type="password"
-                required
-                value={form.password}
+              <input type="password" required value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
                 className="w-full px-4 py-2.5 rounded-lg bg-[#111] border border-[#333] text-white text-sm placeholder-gray-600 focus:outline-none focus:border-[#22c55e] transition-colors"
-                placeholder="••••••••"
-              />
+                placeholder="••••••••" />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-gray-400 mb-1.5">Confirmar contraseña</label>
+              <input type="password" required value={form.confirmPassword}
+                onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
+                className="w-full px-4 py-2.5 rounded-lg bg-[#111] border border-[#333] text-white text-sm placeholder-gray-600 focus:outline-none focus:border-[#22c55e] transition-colors"
+                placeholder="••••••••" />
             </div>
 
             <div>
               <label className="block text-xs font-medium text-gray-400 mb-1.5">Rol académico</label>
-              <select
-                value={form.role}
-                onChange={(e) => setForm({ ...form, role: e.target.value })}
-                className="w-full px-4 py-2.5 rounded-lg bg-[#111] border border-[#333] text-white text-sm focus:outline-none focus:border-[#22c55e] transition-colors"
-              >
+              <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}
+                className="w-full px-4 py-2.5 rounded-lg bg-[#111] border border-[#333] text-white text-sm focus:outline-none focus:border-[#22c55e] transition-colors">
                 <option value="estudiante">Estudiante</option>
                 <option value="profesor">Profesor</option>
                 <option value="coordinador">Coordinador</option>
@@ -175,11 +168,8 @@ export default function RegisterPage() {
               <p className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 px-3 py-2 rounded-lg">{error}</p>
             )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-2.5 rounded-lg bg-[#22c55e] text-black font-semibold text-sm hover:bg-[#16a34a] transition-colors disabled:opacity-50"
-            >
+            <button type="submit" disabled={loading}
+              className="w-full py-2.5 rounded-lg bg-[#22c55e] text-black font-semibold text-sm hover:bg-[#16a34a] transition-colors disabled:opacity-50">
               {loading ? "Creando cuenta..." : "Crear cuenta"}
             </button>
           </form>

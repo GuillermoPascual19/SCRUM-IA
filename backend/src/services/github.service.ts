@@ -1,12 +1,34 @@
 import { prisma } from "../lib/prisma";
 import fs from "fs";
 
+// async function getApp() {
+//   const { App } = await import("@octokit/app");
+//   const privateKey = fs.readFileSync(
+//     process.env.GITHUB_APP_PRIVATE_KEY_PATH!,
+//     "utf-8"
+//   );
+//   return new App({
+//     appId: process.env.GITHUB_APP_ID!,
+//     privateKey,
+//     oauth: {
+//       clientId: process.env.GITHUB_APP_CLIENT_ID!,
+//       clientSecret: process.env.GITHUB_APP_CLIENT_SECRET!,
+//     },
+//   });
+// }
+
 async function getApp() {
   const { App } = await import("@octokit/app");
-  const privateKey = fs.readFileSync(
-    process.env.GITHUB_APP_PRIVATE_KEY_PATH!,
-    "utf-8"
-  );
+  
+  let privateKey: string;
+  
+  if (process.env.GITHUB_PRIVATE_KEY) {
+    privateKey = process.env.GITHUB_PRIVATE_KEY.replace(/\\n/g, "\n");
+  } else {
+    const fs = await import("fs");
+    privateKey = fs.readFileSync(process.env.GITHUB_APP_PRIVATE_KEY_PATH!, "utf-8");
+  }
+  
   return new App({
     appId: process.env.GITHUB_APP_ID!,
     privateKey,
@@ -16,6 +38,7 @@ async function getApp() {
     },
   });
 }
+
 
 function parseRepo(repositoryUrl: string) {
   const match = repositoryUrl.match(/github\.com\/([^/]+)\/([^/]+?)(?:\.git)?$/);
