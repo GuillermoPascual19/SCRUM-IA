@@ -39,8 +39,12 @@ export default function Sidebar() {
     <aside className="w-56 h-screen flex flex-col bg-[var(--card)] border-r border-[var(--border)]">
       <div className="p-4 border-b border-[var(--border)]">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-md bg-[var(--primary)] flex items-center justify-center text-[var(--primary-foreground)] text-xs font-bold">
-            S
+          <div className="w-7 h-7 rounded-md bg-[var(--primary)] flex items-center justify-center shrink-0 overflow-hidden">
+            <img
+              src="/android-chrome-192x192.png"
+              alt="SCRUM-IA"
+              className="w-5 h-5 object-contain"
+            />
           </div>
           <div>
             <p className="text-sm font-bold text-[var(--foreground)]">SCRUM-IA</p>
@@ -56,15 +60,12 @@ export default function Sidebar() {
           </p>
           <div className="space-y-1">
             {platformNav.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
+              <Link key={item.name} href={item.href}
                 className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                   pathname === item.href
                     ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
                     : "text-[var(--foreground)] hover:bg-[var(--accent)]"
-                }`}
-              >
+                }`}>
                 <span className="text-base">{item.icon}</span>
                 {item.name}
               </Link>
@@ -84,15 +85,12 @@ export default function Sidebar() {
                     ? pathname === item.href
                     : pathname.startsWith(item.href);
                 return (
-                  <Link
-                    key={item.name}
-                    href={item.href}
+                  <Link key={item.name} href={item.href}
                     className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                       isActive
                         ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
                         : "text-[var(--foreground)] hover:bg-[var(--accent)]"
-                    }`}
-                  >
+                    }`}>
                     <span className="text-base">{item.icon}</span>
                     {item.name}
                   </Link>
@@ -107,10 +105,8 @@ export default function Sidebar() {
             Acceso
           </p>
           <div className="space-y-1">
-            <button
-              onClick={toggleMode}
-              className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-[var(--foreground)] hover:bg-[var(--accent)] transition-colors"
-            >
+            <button onClick={toggleMode}
+              className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-[var(--foreground)] hover:bg-[var(--accent)] transition-colors">
               {mode === "light" ? (
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
@@ -123,10 +119,8 @@ export default function Sidebar() {
               )}
               {mode === "light" ? "Modo oscuro" : "Modo claro"}
             </button>
-            <button
-              onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-red-500 hover:bg-[var(--accent)] transition-colors"
-            >
+            <button onClick={handleLogout}
+              className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-red-500 hover:bg-[var(--accent)] transition-colors">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
                 <polyline points="16 17 21 12 16 7"/>
@@ -143,9 +137,7 @@ export default function Sidebar() {
           </p>
           <div className="flex gap-2 px-3">
             {(["green", "blue", "red", "orange"] as const).map((t) => (
-              <button
-                key={t}
-                onClick={() => setTheme(t)}
+              <button key={t} onClick={() => setTheme(t)}
                 className={`w-5 h-5 rounded-full border-2 transition-transform ${
                   theme === t ? "scale-125 border-[var(--foreground)]" : "border-transparent"
                 }`}

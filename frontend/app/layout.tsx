@@ -5,9 +5,23 @@ import ThemeProvider from "@/components/layout/ThemeProvider";
 
 const geist = Geist({ subsets: ["latin"] });
 
+// export const metadata: Metadata = {
+//   title: "SCRUM-IA",
+//   description: "Plataforma académica de gestión de TFGs con metodología SCRUM",
+// };
+
 export const metadata: Metadata = {
   title: "SCRUM-IA",
   description: "Plataforma académica de gestión de TFGs con metodología SCRUM",
+  icons: {
+    icon: [
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/android-chrome-192x192.png", sizes: "192x192", type: "image/png" },
+    ],
+    apple: "/apple-touch-icon.png",
+  },
+  manifest: "/site.webmanifest",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -21,3 +35,4 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   );
 }
+
