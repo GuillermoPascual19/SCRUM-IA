@@ -1,12 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import api from "@/lib/axios";
 
 export default function RegisterPage() {
-  const router = useRouter();
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -16,6 +14,7 @@ export default function RegisterPage() {
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [registered, setRegistered] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -32,12 +31,35 @@ export default function RegisterPage() {
         password: form.password,
         role: form.role,
       });
-      router.push("/login");
+      setRegistered(true);
     } catch (e: any) {
       setError(e.response?.data?.error || "Error al registrarse");
     } finally {
       setLoading(false);
     }
+  }
+
+  if (registered) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#0a0f0a]">
+        <div className="max-w-sm w-full mx-auto text-center space-y-4 px-8">
+          <div className="w-12 h-12 rounded-full bg-[#22c55e]/10 border border-[#22c55e]/30 flex items-center justify-center mx-auto">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+              <polyline points="22,6 12,13 2,6"/>
+            </svg>
+          </div>
+          <h2 className="text-xl font-bold text-white">Revisa tu correo</h2>
+          <p className="text-gray-400 text-sm leading-relaxed">
+            Hemos enviado un enlace de activación a{" "}
+            <span className="text-[#22c55e]">{form.email}</span>. Haz clic en el enlace para activar tu cuenta.
+          </p>
+          <Link href="/login" className="inline-block text-[#22c55e] text-sm hover:underline">
+            Volver al login
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   return (

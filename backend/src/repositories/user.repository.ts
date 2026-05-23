@@ -16,6 +16,20 @@ export async function createUser(data: {
   email: string;
   password: string;
   role: string;
+  isActive: boolean;
+  activationToken: string;
+  activationTokenExpires: Date;
 }) {
   return prisma.user.create({ data });
+}
+
+export async function findUserByActivationToken(token: string) {
+  return prisma.user.findFirst({ where: { activationToken: token } });
+}
+
+export async function activateUser(id: number) {
+  return prisma.user.update({
+    where: { id },
+    data: { isActive: true, activationToken: null, activationTokenExpires: null },
+  });
 }
