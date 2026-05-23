@@ -19,10 +19,24 @@ export default function RegisterPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+
+    if (form.password.length < 6) {
+      setError("La contraseña debe tener al menos 6 caracteres");
+      return;
+    }
+    if (!/[A-Z]/.test(form.password)) {
+      setError("La contraseña debe contener al menos una letra mayúscula");
+      return;
+    }
+    if (!/[0-9]/.test(form.password)) {
+      setError("La contraseña debe contener al menos un número");
+      return;
+    }
     if (form.password !== form.confirmPassword) {
       setError("Las contraseñas no coinciden");
       return;
     }
+
     setLoading(true);
     try {
       await api.post("/auth/register", {
@@ -167,6 +181,20 @@ export default function RegisterPage() {
                 className="w-full px-4 py-2.5 rounded-lg bg-[#111] border border-[#333] text-white text-sm placeholder-gray-600 focus:outline-none focus:border-[#22c55e] transition-colors"
                 placeholder="••••••••" />
             </div>
+
+            {form.password && (
+              <ul className="text-xs space-y-1 mt-1.5">
+                <li className={form.password.length >= 6 ? "text-[#22c55e]" : "text-gray-500"}>
+                  {form.password.length >= 6 ? "✓" : "·"} Mínimo 6 caracteres
+                </li>
+                <li className={/[A-Z]/.test(form.password) ? "text-[#22c55e]" : "text-gray-500"}>
+                  {/[A-Z]/.test(form.password) ? "✓" : "·"} Al menos una mayúscula
+                </li>
+                <li className={/[0-9]/.test(form.password) ? "text-[#22c55e]" : "text-gray-500"}>
+                  {/[0-9]/.test(form.password) ? "✓" : "·"} Al menos un número
+                </li>
+              </ul>
+            )}
 
             <div>
               <label className="block text-xs font-medium text-gray-400 mb-1.5">Confirmar contraseña</label>
