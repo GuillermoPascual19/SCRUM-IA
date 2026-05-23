@@ -22,6 +22,10 @@ export default function LoginPage() {
       setAuth(data.user, data.token);
       router.push("/dashboard");
     } catch (e: any) {
+      if (e.response?.data?.error === "ACCOUNT_NOT_ACTIVATED") {
+        setError("Debes activar tu cuenta antes de iniciar sesión. Revisa tu correo.");
+        return;
+      }
       setError(e.response?.data?.error || "Error al iniciar sesión");
     } finally {
       setLoading(false);
