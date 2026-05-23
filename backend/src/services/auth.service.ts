@@ -16,7 +16,7 @@ export async function registerUser(name: string, email: string, password: string
 
   const hashed = await bcrypt.hash(password, 10);
   const activationToken = crypto.randomBytes(32).toString("hex");
-  const activationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24h
+  const activationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
   const user = await createUser({
     name,
@@ -28,7 +28,9 @@ export async function registerUser(name: string, email: string, password: string
     activationTokenExpires,
   });
 
-  await sendActivationEmail(email, name, activationToken);
+  sendActivationEmail(email, name, activationToken).catch((err) => {
+    console.error("Error enviando email de activación:", err);
+  });
 
   return { id: user.id, name: user.name, email: user.email, role: user.role };
 }
