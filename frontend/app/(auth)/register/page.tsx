@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import api from "@/lib/axios";
+import { toast } from "@/components/ui/use-toast";
 
 export default function RegisterPage() {
   const [form, setForm] = useState({
@@ -21,19 +22,19 @@ export default function RegisterPage() {
     setError("");
 
     if (form.password.length < 6) {
-      setError("La contraseña debe tener al menos 6 caracteres");
+      toast({ variant: "destructive", title: "Error", description: "La contraseña debe tener al menos 6 caracteres" })
       return;
     }
     if (!/[A-Z]/.test(form.password)) {
-      setError("La contraseña debe contener al menos una letra mayúscula");
+      toast({ variant: "destructive", title: "Error", description: "La contraseña debe contener al menos una letra mayúscula" })
       return;
     }
     if (!/[0-9]/.test(form.password)) {
-      setError("La contraseña debe contener al menos un número");
+      toast({ variant: "destructive", title: "Error", description: "La contraseña debe contener al menos un número" })
       return;
     }
     if (form.password !== form.confirmPassword) {
-      setError("Las contraseñas no coinciden");
+      toast({ variant: "destructive", title: "Error", description: "Las contraseñas no coinciden" })
       return;
     }
 
@@ -45,9 +46,11 @@ export default function RegisterPage() {
         password: form.password,
         role: form.role,
       });
-      setRegistered(true);
+      toast({ variant: "success", title: "Cuenta creada", description: "Revisa tu correo para activarla" })
     } catch (e: any) {
-      setError(e.response?.data?.error || "Error al registrarse");
+      toast({ variant: "destructive", title: "Error", description: "Fallo al registrarse" })
+      setRegistered(true);
+      
     } finally {
       setLoading(false);
     }
