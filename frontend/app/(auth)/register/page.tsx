@@ -4,8 +4,10 @@ import { useState } from "react";
 import Link from "next/link";
 import api from "@/lib/axios";
 import { toast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
+  const router = useRouter();
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -17,6 +19,7 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [registered, setRegistered] = useState(false);
 
+  
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
@@ -47,6 +50,7 @@ export default function RegisterPage() {
         role: form.role,
       });
       toast({ variant: "success", title: "Cuenta creada", description: "Revisa tu correo para activarla" })
+      router.push("/login");
     } catch (e: any) {
       toast({ variant: "destructive", title: "Error", description: "Fallo al registrarse" })
       setRegistered(true);
