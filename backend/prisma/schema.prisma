@@ -20,6 +20,9 @@ model User {
   isActive  Boolean  @default(true) @map("is_active")
   activationToken        String?   @db.VarChar(255) @map("activation_token")
   activationTokenExpires DateTime? @map("activation_token_expires")
+  resetPasswordToken        String?   @db.VarChar(255) @map("reset_password_token")
+  resetPasswordTokenExpires DateTime? @map("reset_password_token_expires")
+
   createdAt DateTime @default(now()) @map("created_at")
   githubToken String? @db.VarChar(255) @map("github_token")
   
@@ -33,7 +36,7 @@ model User {
   studentGrades        TfgFinalGrade[]  @relation("StudentGrade")
   professorGrades      TfgFinalGrade[]  @relation("ProfessorGrade")
   deliverables         Deliverable[]
-
+  
   @@map("users")
 }
 

@@ -1,6 +1,9 @@
 import { Request, Response } from "express";
 import { AuthRequest } from "../middleware/auth";
-import { registerUser, loginUser, getMe, activateAccount } from "../services/auth.service";
+import {
+  registerUser, loginUser, getMe,
+  activateAccount, requestPasswordReset, resetPassword,
+} from "../services/auth.service";
 
 export async function register(req: Request, res: Response) {
   const { name, email, password, role } = req.body;
@@ -63,6 +66,38 @@ export async function activate(req: Request, res: Response) {
     }
     if (e.message === "TOKEN_EXPIRED") {
       res.status(400).json({ error: "El enlace de activación ha expirado" });
+      return;
+    }
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+}
+
+export async function forgotPassword(req: Request, res: Response) {
+  const { email } = req.body;
+  try {
+    await requestPasswordReset(email);
+    res.json({ message: "Si el email existe recibirás un enlace de recuperación" });
+  } catch {
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+}
+
+export async function resetPasswordController(req: Request, res: Response) {
+  const { token, password } = req.body;
+  if (!token || !password) {
+    res.status(400).json({ error: "Token y contraseña son requeridos" });
+    return;
+  }
+  try {
+    const result = await resetPassword(token, password);
+    res.json(result);
+  } catch (e: any) {
+    if (e.message === "INVALID_TOKEN") {
+      res.status(400).json({ error: "El enlace no es válido" });
+      return;
+    }
+    if (e.message === "TOKEN_EXPIRED") {
+      res.status(400).json({ error: "El enlace ha expirado" });
       return;
     }
     res.status(500).json({ error: "Error interno del servidor" });
