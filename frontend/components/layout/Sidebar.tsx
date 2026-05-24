@@ -30,7 +30,7 @@ export default function Sidebar() {
     { name: "Planificación", href: `/tfgs/${tfgId}/planner`, icon: "📅" },
     { name: "Backlog", href: `/tfgs/${tfgId}/backlog`, icon: "☰" },
     { name: "Evaluación IA", href: `/tfgs/${tfgId}/grades`, icon: "✦" },
-    ...(isProf ? [{ name: "Informes", href: `/tfgs/${tfgId}/informes`, icon: "◈" }] : []),
+    ...(isProf ? [{ name: "Informes", href: `/tfgs/${tfgId}/reports`, icon: "◈" }] : []),
   ] : [];
 
 

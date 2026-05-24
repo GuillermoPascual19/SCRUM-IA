@@ -138,7 +138,7 @@ export default function TfgDetailPage() {
           )}
           {isProfessor(user?.role) && (
             <button
-              onClick={() => router.push(`/tfgs/${id}/informes`)}
+              onClick={() => router.push(`/tfgs/${id}/reports`)}
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--primary)] text-[var(--primary-foreground)] text-sm font-medium hover:opacity-90 transition-opacity">
               ✦ Informes IA
             </button>
