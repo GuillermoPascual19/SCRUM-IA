@@ -48,6 +48,12 @@ export async function setResetToken(id: number, token: string, expires: Date) {
 export async function updateUserPassword(id: number, hashedPassword: string) {
   return prisma.user.update({
     where: { id },
-    data: { password: hashedPassword, resetPasswordToken: null, resetPasswordTokenExpires: null },
+    data: {
+      password: hashedPassword,
+      isActive: true,
+      resetPasswordToken: null,
+      resetPasswordTokenExpires: null,
+    },
   });
 }
+
