@@ -7,7 +7,8 @@ import {
   getFinalGrades,
   updateFinal,
   retroInsights,
-  tfgSummary
+  tfgSummary,
+  getReports,
 } from "../controllers/ai.controller";
 import { authenticate, requireRole } from "../middleware/auth";
 
@@ -22,5 +23,6 @@ router.get("/final", authenticate, getFinalGrades);
 router.put("/final/:id", authenticate, requireRole("profesor", "coordinador", "admin"), updateFinal);
 router.get("/retro-insights/:sprintId", authenticate, retroInsights);
 router.post("/tfg-summary", authenticate, requireRole("profesor", "coordinador", "admin"), tfgSummary);
+router.get("/reports", authenticate, requireRole("profesor", "coordinador", "admin"), getReports);
 
 export default router;

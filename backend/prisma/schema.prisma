@@ -36,6 +36,7 @@ model User {
   studentGrades        TfgFinalGrade[]  @relation("StudentGrade")
   professorGrades      TfgFinalGrade[]  @relation("ProfessorGrade")
   deliverables         Deliverable[]
+  generatedReports     TfgReport[]      @relation("ProfessorReport")
   
   @@map("users")
 }
@@ -60,6 +61,7 @@ model Tfg {
   evaluations  Evaluation[]
   finalGrades  TfgFinalGrade[]
   deliverables Deliverable[]
+  reports      TfgReport[]
 
   @@map("tfgs")
 }
@@ -233,6 +235,20 @@ model Retrospective {
   sprint   Sprint @relation(fields: [sprintId], references: [id])
 
   @@map("retrospectives")
+}
+
+model TfgReport {
+  id           Int      @id @default(autoincrement())
+  content      String   @db.Text
+  customPrompt String?  @db.Text @map("custom_prompt")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  tfgId       Int  @map("tfg_id")
+  tfg         Tfg  @relation(fields: [tfgId], references: [id])
+  professorId Int  @map("professor_id")
+  professor   User @relation("ProfessorReport", fields: [professorId], references: [id])
+
+  @@map("tfg_reports")
 }
 
 model Deliverable {
