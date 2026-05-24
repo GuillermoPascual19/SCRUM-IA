@@ -18,8 +18,13 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401 && typeof window !== "undefined") {
-      localStorage.removeItem("token");
-      window.location.href = "/login";
+      const isAuthRoute = ["/login", "/register", "/forgot-password", "/reset-password"].some(
+        (path) => window.location.pathname.startsWith(path)
+      );
+      if (!isAuthRoute) {
+        localStorage.removeItem("token");
+        window.location.href = "/login";
+      }
     }
     return Promise.reject(error);
   }
