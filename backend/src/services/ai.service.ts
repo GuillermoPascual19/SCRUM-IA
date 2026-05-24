@@ -321,7 +321,12 @@ function tryParseNotes(val: string | null): any[] {
   try { return JSON.parse(val); } catch { return []; }
 }
 
-export async function generateTfgSummary(tfgId: number, customPrompt?: string) {
+export async function getTfgReports(tfgId: number) {
+  const { getTfgReportsByTfgId } = await import("../repositories/tfgReport.repository");
+  return getTfgReportsByTfgId(tfgId);
+}
+
+export async function generateTfgSummary(tfgId: number, professorId: number, customPrompt?: string) {
   const [tfg, evaluations, finalGrades, members] = await Promise.all([
     prisma.tfg.findUnique({
       where: { id: tfgId },
@@ -392,5 +397,11 @@ Redacta un informe estructurado en prosa (NO JSON) con las siguientes secciones:
   const content = message.content[0];
   if (content.type !== "text") throw new Error("AI_INVALID_RESPONSE");
 
-  return { report: content.text };
+  const { createTfgReport } = await import("../repositories/tfgReport.repository");
+  return createTfgReport({
+    tfgId,
+    professorId,
+    content: content.text,
+    customPrompt: customPrompt ?? null,
+  });
 }

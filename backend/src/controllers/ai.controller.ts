@@ -9,6 +9,7 @@ import {
   updateFinalGrade,
   generateRetroInsights,
   generateTfgSummary,
+  getTfgReports,
 } from "../services/ai.service";
 
 export async function generate(req: AuthRequest, res: Response) {
@@ -122,13 +123,22 @@ export async function tfgSummary(req: AuthRequest, res: Response) {
   const tfgId = Number(req.params.tfgId);
   const { prompt } = req.body;
   try {
-    const result = await generateTfgSummary(tfgId, prompt);
-    res.json(result);
+    const result = await generateTfgSummary(tfgId, req.user!.id, prompt);
+    res.status(201).json(result);
   } catch (e: any) {
     if (e.message === "TFG_NOT_FOUND") {
       res.status(404).json({ error: "TFG no encontrado" });
       return;
     }
     res.status(500).json({ error: "Error al generar el informe" });
+  }
+}
+
+export async function getReports(req: AuthRequest, res: Response) {
+  try {
+    const reports = await getTfgReports(Number(req.params.tfgId));
+    res.json(reports);
+  } catch {
+    res.status(500).json({ error: "Error interno del servidor" });
   }
 }

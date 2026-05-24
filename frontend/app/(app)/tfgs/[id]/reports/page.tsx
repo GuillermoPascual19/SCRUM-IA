@@ -10,7 +10,6 @@ interface Evaluation {
   finalScore: string | null;
   commitsScore: string | null;
   tasksScore: string | null;
-  comments: string | null;
   aiGenerated: boolean;
   reviewedByProfessor: boolean;
   student: { id: number; name: string };
@@ -21,12 +20,58 @@ interface FinalGrade {
   id: number;
   finalScore: string | null;
   sprintsAverage: string | null;
-  finalComment: string | null;
   student: { id: number; name: string };
+}
+
+interface TfgReport {
+  id: number;
+  content: string;
+  customPrompt: string | null;
+  createdAt: string;
+  professor: { id: number; name: string };
 }
 
 function isProfessor(role?: string) {
   return role === "profesor" || role === "coordinador" || role === "admin";
+}
+
+function formatDate(iso: string) {
+  return new Date(iso).toLocaleString("es-ES", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function ReportContent({ content }: { content: string }) {
+  return (
+    <div className="space-y-1">
+      {content.split("\n").map((line, i) => {
+        if (line.startsWith("## ") || line.startsWith("# ")) {
+          return (
+            <p key={i} className="font-semibold text-[var(--foreground)] mt-4 mb-1">
+              {line.replace(/^#+\s/, "")}
+            </p>
+          );
+        }
+        if (line.startsWith("- ") || line.startsWith("* ")) {
+          return (
+            <p key={i} className="text-sm text-[var(--muted-foreground)] pl-3 before:content-['·'] before:mr-2">
+              {line.slice(2)}
+            </p>
+          );
+        }
+        if (line.trim() === "") return <div key={i} className="h-2" />;
+        return (
+          <p key={i} className="text-sm text-[var(--muted-foreground)] leading-relaxed">
+            {line}
+          </p>
+        );
+      })}
+    </div>
+  );
 }
 
 export default function InformesPage() {
@@ -34,20 +79,25 @@ export default function InformesPage() {
   const { user } = useAuthStore();
   const [evaluations, setEvaluations] = useState<Evaluation[]>([]);
   const [finalGrades, setFinalGrades] = useState<FinalGrade[]>([]);
+  const [reports, setReports] = useState<TfgReport[]>([]);
   const [loading, setLoading] = useState(true);
   const [prompt, setPrompt] = useState("");
   const [generating, setGenerating] = useState(false);
-  const [report, setReport] = useState<string | null>(null);
+  const [activeReport, setActiveReport] = useState<TfgReport | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const [evRes, fgRes] = await Promise.all([
+        const [evRes, fgRes, rpRes] = await Promise.all([
           api.get(`/tfgs/${id}/evaluations`),
           api.get(`/tfgs/${id}/evaluations/final`),
+          api.get(`/tfgs/${id}/evaluations/reports`),
         ]);
         setEvaluations(evRes.data);
         setFinalGrades(fgRes.data);
+        setReports(rpRes.data);
+        if (rpRes.data.length > 0) setActiveReport(rpRes.data[0]);
       } catch {
         console.error("Error cargando datos");
       } finally {
@@ -59,20 +109,20 @@ export default function InformesPage() {
 
   async function handleGenerateSummary() {
     setGenerating(true);
-    setReport(null);
+    setError(null);
     try {
       const { data } = await api.post(`/tfgs/${id}/evaluations/tfg-summary`, {
         prompt: prompt.trim() || undefined,
       });
-      setReport(data.report);
+      setReports((prev) => [data, ...prev]);
+      setActiveReport(data);
+      setPrompt("");
     } catch {
-      setReport("Error al generar el informe. Inténtalo de nuevo.");
+      setError("Error al generar el informe. Inténtalo de nuevo.");
     } finally {
       setGenerating(false);
     }
   }
-
-  const studentNames = [...new Set(evaluations.map((e) => e.student.name))];
 
   if (!isProfessor(user?.role)) {
     return (
@@ -82,11 +132,13 @@ export default function InformesPage() {
     );
   }
 
-  if (loading) return (
-    <div className="flex items-center justify-center h-full text-[var(--muted-foreground)]">
-      Cargando...
-    </div>
-  );
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full text-[var(--muted-foreground)]">
+        Cargando...
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -94,11 +146,11 @@ export default function InformesPage() {
         <p className="text-xs font-semibold text-[var(--primary)] uppercase tracking-wider mb-1">Informes IA</p>
         <h1 className="text-2xl font-bold text-[var(--foreground)]">Informe global del TFG</h1>
         <p className="text-sm text-[var(--muted-foreground)] mt-1">
-          Resumen de todos los informes generados y análisis completo del proyecto.
+          Genera y consulta el historial de informes ejecutivos del proyecto.
         </p>
       </div>
 
-      {/* Tabla resumen */}
+      {/* Tabla resumen de evaluaciones */}
       {evaluations.length > 0 ? (
         <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] overflow-hidden">
           <div className="px-5 py-4 border-b border-[var(--border)]">
@@ -145,7 +197,9 @@ export default function InformesPage() {
         </div>
       ) : (
         <div className="text-center py-10 bg-[var(--card)] rounded-xl border border-[var(--border)]">
-          <p className="text-[var(--muted-foreground)] text-sm">No hay evaluaciones generadas aún. Ve a <strong>Notas</strong> para generarlas.</p>
+          <p className="text-[var(--muted-foreground)] text-sm">
+            No hay evaluaciones generadas aún. Ve a <strong>Notas</strong> para generarlas.
+          </p>
         </div>
       )}
 
@@ -172,14 +226,14 @@ export default function InformesPage() {
         </div>
       )}
 
-      {/* Generador de informe global */}
+      {/* Generador */}
       <div className="bg-[var(--card)] rounded-xl border border-[var(--primary)]/30 p-5 space-y-4">
         <div>
           <h2 className="text-sm font-semibold text-[var(--foreground)] flex items-center gap-2">
             <span className="text-[var(--primary)]">✦</span> Generar informe global con IA
           </h2>
           <p className="text-xs text-[var(--muted-foreground)] mt-1">
-            Claude analizará todos los informes generados y producirá un resumen ejecutivo completo del TFG.
+            Claude analizará todas las evaluaciones y producirá un informe ejecutivo que quedará guardado en el historial.
           </p>
         </div>
         <textarea
@@ -189,48 +243,80 @@ export default function InformesPage() {
           placeholder="Instrucción adicional (opcional) — ej: 'Enfócate en la evolución del equipo a lo largo de los sprints'"
           className="w-full border border-[var(--border)] rounded-lg px-3 py-2.5 text-sm bg-[var(--background)] text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)] resize-none"
         />
-        <button
-          onClick={handleGenerateSummary}
-          disabled={generating || evaluations.length === 0}
-          className="px-6 py-2.5 rounded-lg bg-[var(--primary)] text-[var(--primary-foreground)] text-sm font-semibold hover:opacity-90 disabled:opacity-50 flex items-center gap-2 transition-opacity"
-        >
-          {generating ? (
-            <><span className="animate-spin inline-block">⟳</span> Generando informe...</>
-          ) : (
-            <><span>✦</span> Generar informe global</>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={handleGenerateSummary}
+            disabled={generating || evaluations.length === 0}
+            className="px-6 py-2.5 rounded-lg bg-[var(--primary)] text-[var(--primary-foreground)] text-sm font-semibold hover:opacity-90 disabled:opacity-50 flex items-center gap-2 transition-opacity"
+          >
+            {generating ? (
+              <><span className="animate-spin inline-block">⟳</span> Generando informe...</>
+            ) : (
+              <><span>✦</span> Generar informe global</>
+            )}
+          </button>
+          {evaluations.length === 0 && (
+            <p className="text-xs text-[var(--muted-foreground)]">Necesitas al menos una evaluación para generar el informe.</p>
           )}
-        </button>
-        {evaluations.length === 0 && (
-          <p className="text-xs text-[var(--muted-foreground)]">Necesitas al menos una evaluación de sprint para generar el informe.</p>
-        )}
+        </div>
+        {error && <p className="text-xs text-red-400">{error}</p>}
       </div>
 
-      {/* Resultado del informe */}
-      {report && (
-        <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] p-6 space-y-3">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-[var(--foreground)] flex items-center gap-2">
-              <span className="text-[var(--primary)]">✦</span> Informe generado
-            </h2>
-            <button
-              onClick={() => navigator.clipboard.writeText(report)}
-              className="text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
-            >
-              Copiar
-            </button>
+      {/* Historial + Lector */}
+      {reports.length > 0 && (
+        <div className="grid grid-cols-[260px_1fr] gap-4 items-start">
+          {/* Historial */}
+          <div className="space-y-2">
+            <p className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider px-1 mb-3">
+              Historial ({reports.length})
+            </p>
+            {reports.map((r) => (
+              <button
+                key={r.id}
+                onClick={() => setActiveReport(r)}
+                className={`w-full text-left p-3 rounded-lg border transition-colors ${
+                  activeReport?.id === r.id
+                    ? "border-[var(--primary)] bg-[var(--primary)]/10"
+                    : "border-[var(--border)] bg-[var(--card)] hover:bg-[var(--accent)]/30"
+                }`}
+              >
+                <p className="text-xs font-medium text-[var(--foreground)]">{formatDate(r.createdAt)}</p>
+                <p className="text-xs text-[var(--muted-foreground)] mt-0.5">{r.professor.name}</p>
+                {r.customPrompt && (
+                  <p className="text-xs text-[var(--primary)]/70 mt-1 truncate italic">"{r.customPrompt}"</p>
+                )}
+                <p className="text-xs text-[var(--muted-foreground)] mt-1 line-clamp-2 leading-relaxed opacity-70">
+                  {r.content.slice(0, 90)}…
+                </p>
+              </button>
+            ))}
           </div>
-          <div className="prose prose-sm max-w-none text-[var(--foreground)]">
-            {report.split("\n").map((line, i) => {
-              if (line.startsWith("## ") || line.startsWith("# ")) {
-                return <p key={i} className="font-semibold text-[var(--foreground)] mt-4 mb-1">{line.replace(/^#+\s/, "")}</p>;
-              }
-              if (line.startsWith("- ") || line.startsWith("* ")) {
-                return <p key={i} className="text-sm text-[var(--muted-foreground)] pl-3 before:content-['·'] before:mr-2">{line.slice(2)}</p>;
-              }
-              if (line.trim() === "") return <div key={i} className="h-2" />;
-              return <p key={i} className="text-sm text-[var(--muted-foreground)] leading-relaxed">{line}</p>;
-            })}
-          </div>
+
+          {/* Lector */}
+          {activeReport && (
+            <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] p-6">
+              <div className="flex items-start justify-between mb-5 gap-4">
+                <div>
+                  <p className="text-xs font-semibold text-[var(--primary)] uppercase tracking-wider">Informe seleccionado</p>
+                  <p className="text-xs text-[var(--muted-foreground)] mt-1">
+                    {formatDate(activeReport.createdAt)} · generado por {activeReport.professor.name}
+                  </p>
+                  {activeReport.customPrompt && (
+                    <p className="text-xs text-[var(--muted-foreground)] mt-0.5 italic">
+                      Prompt: "{activeReport.customPrompt}"
+                    </p>
+                  )}
+                </div>
+                <button
+                  onClick={() => navigator.clipboard.writeText(activeReport.content)}
+                  className="text-xs px-3 py-1.5 rounded-md border border-[var(--border)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:border-[var(--foreground)]/30 transition-colors shrink-0"
+                >
+                  Copiar
+                </button>
+              </div>
+              <ReportContent content={activeReport.content} />
+            </div>
+          )}
         </div>
       )}
     </div>
