@@ -8,6 +8,7 @@ import {
   getFinalGradesByTfg,
   updateFinalGrade,
   generateRetroInsights,
+  generateTfgSummary,
 } from "../services/ai.service";
 
 export async function generate(req: AuthRequest, res: Response) {
@@ -114,5 +115,20 @@ export async function retroInsights(req: AuthRequest, res: Response) {
       return;
     }
     res.status(500).json({ error: "Error al generar insights" });
+  }
+}
+
+export async function tfgSummary(req: AuthRequest, res: Response) {
+  const tfgId = Number(req.params.tfgId);
+  const { prompt } = req.body;
+  try {
+    const result = await generateTfgSummary(tfgId, prompt);
+    res.json(result);
+  } catch (e: any) {
+    if (e.message === "TFG_NOT_FOUND") {
+      res.status(404).json({ error: "TFG no encontrado" });
+      return;
+    }
+    res.status(500).json({ error: "Error al generar el informe" });
   }
 }

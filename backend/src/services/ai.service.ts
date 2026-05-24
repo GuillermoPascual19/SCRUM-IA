@@ -320,3 +320,77 @@ function tryParseNotes(val: string | null): any[] {
   if (!val) return [];
   try { return JSON.parse(val); } catch { return []; }
 }
+
+export async function generateTfgSummary(tfgId: number, customPrompt?: string) {
+  const [tfg, evaluations, finalGrades, members] = await Promise.all([
+    prisma.tfg.findUnique({
+      where: { id: tfgId },
+      select: { title: true, description: true, academicYear: true },
+    }),
+    prisma.evaluation.findMany({
+      where: { tfgId },
+      include: {
+        student: { select: { name: true } },
+        sprint: { select: { name: true } },
+      },
+      orderBy: { createdAt: "asc" },
+    }),
+    prisma.tfgFinalGrade.findMany({
+      where: { tfgId },
+      include: { student: { select: { name: true } } },
+    }),
+    prisma.tfgMember.findMany({
+      where: { tfgId },
+      include: { user: { select: { name: true } } },
+    }),
+  ]);
+
+  if (!tfg) throw new Error("TFG_NOT_FOUND");
+
+  const evalsByStudent: Record<string, any[]> = {};
+  evaluations.forEach((e) => {
+    const name = e.student.name;
+    if (!evalsByStudent[name]) evalsByStudent[name] = [];
+    evalsByStudent[name].push(e);
+  });
+
+  const studentSummaries = Object.entries(evalsByStudent).map(([name, evals]) => {
+    const scores = evals.map((e) => `${e.sprint.name}: ${e.finalScore ?? "sin nota"}`).join(", ");
+    const finalGrade = finalGrades.find((fg) => fg.student.name === name);
+    return `- ${name}: sprints [${scores}]${finalGrade ? ` → nota final: ${finalGrade.finalScore}` : ""}`;
+  }).join("\n");
+
+  const basePrompt = `Eres un evaluador académico experto en metodologías ágiles y TFGs universitarios.
+Analiza el rendimiento global del siguiente proyecto TFG y genera un informe ejecutivo completo.
+
+## Proyecto
+- **Título:** ${tfg.title}
+- **Descripción:** ${tfg.description || "No especificada"}
+- **Año académico:** ${tfg.academicYear || "No especificado"}
+- **Equipo:** ${members.map((m) => m.user.name).join(", ")}
+
+## Evaluaciones por estudiante
+${studentSummaries || "Sin evaluaciones generadas"}
+
+## Instrucción adicional del profesor
+${customPrompt || "Genera un informe ejecutivo completo del proyecto con conclusiones y recomendaciones."}
+
+Redacta un informe estructurado en prosa (NO JSON) con las siguientes secciones:
+1. Resumen ejecutivo del proyecto
+2. Rendimiento por estudiante
+3. Análisis del trabajo en equipo
+4. Puntos fuertes del proyecto
+5. Áreas de mejora
+6. Conclusión y recomendación final`;
+
+  const message = await client.messages.create({
+    model: "claude-sonnet-4-6",
+    max_tokens: 2048,
+    messages: [{ role: "user", content: basePrompt }],
+  });
+
+  const content = message.content[0];
+  if (content.type !== "text") throw new Error("AI_INVALID_RESPONSE");
+
+  return { report: content.text };
+}
