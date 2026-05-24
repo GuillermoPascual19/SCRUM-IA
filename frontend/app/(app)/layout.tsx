@@ -30,7 +30,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         style={{ background: "var(--primary)" }}
       />
       <Sidebar />
-      <main className="flex-1 overflow-hidden p-6 relative z-10">
+      <main className="flex-1 overflow-y-auto p-6 relative z-10">
         {children}
       </main>
     </div>
