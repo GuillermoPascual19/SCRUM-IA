@@ -22,13 +22,17 @@ export default function Sidebar() {
   const tfgIdMatch = pathname.match(/^\/tfgs\/(\d+)/);
   const tfgId = tfgIdMatch ? tfgIdMatch[1] : null;
 
+  const isProf = user?.role === "profesor" || user?.role === "coordinador" || user?.role === "admin";
+
   const tfgNav = tfgId ? [
     { name: "Resumen", href: `/tfgs/${tfgId}`, icon: "◉" },
     { name: "Sprints", href: `/tfgs/${tfgId}/sprints`, icon: "◎" },
     { name: "Planificación", href: `/tfgs/${tfgId}/planner`, icon: "📅" },
     { name: "Backlog", href: `/tfgs/${tfgId}/backlog`, icon: "☰" },
     { name: "Evaluación IA", href: `/tfgs/${tfgId}/grades`, icon: "✦" },
+    ...(isProf ? [{ name: "Informes", href: `/tfgs/${tfgId}/informes`, icon: "◈" }] : []),
   ] : [];
+
 
   function handleLogout() {
     logout();
