@@ -149,6 +149,11 @@ export default function LoginPage() {
               {loading ? "Entrando..." : "Entrar"}
             </button>
           </form>
+          <div className="flex justify-end">
+            <Link href="/forgot-password" className="text-xs text-gray-500 hover:text-[#22c55e] transition-colors">
+              ¿Olvidaste tu contraseña?
+            </Link>
+          </div>
 
           <p className="text-center text-gray-600 text-sm">
             ¿No tienes cuenta?{" "}

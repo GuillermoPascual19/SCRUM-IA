@@ -7,8 +7,11 @@ import {
   createUser,
   findUserByActivationToken,
   activateUser,
+  findUserByResetToken,
+  setResetToken,
+  updateUserPassword,
 } from "../repositories/user.repository";
-import { sendActivationEmail } from "./email.service";
+import { sendActivationEmail, sendPasswordResetEmail } from "./email.service";
 
 export async function registerUser(name: string, email: string, password: string, role: string) {
   const existing = await findUserByEmail(email);
@@ -19,13 +22,8 @@ export async function registerUser(name: string, email: string, password: string
   const activationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
   const user = await createUser({
-    name,
-    email,
-    password: hashed,
-    role,
-    isActive: false,
-    activationToken,
-    activationTokenExpires,
+    name, email, password: hashed, role,
+    isActive: false, activationToken, activationTokenExpires,
   });
 
   sendActivationEmail(email, name, activationToken).catch((err) => {
@@ -66,4 +64,28 @@ export async function activateAccount(token: string) {
 
   await activateUser(user.id);
   return { message: "Cuenta activada correctamente" };
+}
+
+export async function requestPasswordReset(email: string) {
+  const user = await findUserByEmail(email);
+  if (!user) return; // No revelamos si el email existe o no
+
+  const token = crypto.randomBytes(32).toString("hex");
+  const expires = new Date(Date.now() + 60 * 60 * 1000); // 1 hora
+
+  await setResetToken(user.id, token, expires);
+
+  sendPasswordResetEmail(email, user.name, token).catch((err) => {
+    console.error("Error enviando email de recuperación:", err);
+  });
+}
+
+export async function resetPassword(token: string, newPassword: string) {
+  const user = await findUserByResetToken(token);
+  if (!user || !user.resetPasswordTokenExpires) throw new Error("INVALID_TOKEN");
+  if (user.resetPasswordTokenExpires < new Date()) throw new Error("TOKEN_EXPIRED");
+
+  const hashed = await bcrypt.hash(newPassword, 10);
+  await updateUserPassword(user.id, hashed);
+  return { message: "Contraseña actualizada correctamente" };
 }

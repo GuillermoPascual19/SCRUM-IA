@@ -33,3 +33,21 @@ export async function activateUser(id: number) {
     data: { isActive: true, activationToken: null, activationTokenExpires: null },
   });
 }
+
+export async function findUserByResetToken(token: string) {
+  return prisma.user.findFirst({ where: { resetPasswordToken: token } });
+}
+
+export async function setResetToken(id: number, token: string, expires: Date) {
+  return prisma.user.update({
+    where: { id },
+    data: { resetPasswordToken: token, resetPasswordTokenExpires: expires },
+  });
+}
+
+export async function updateUserPassword(id: number, hashedPassword: string) {
+  return prisma.user.update({
+    where: { id },
+    data: { password: hashedPassword, resetPasswordToken: null, resetPasswordTokenExpires: null },
+  });
+}
