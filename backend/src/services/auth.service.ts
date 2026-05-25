@@ -11,6 +11,7 @@ import {
   setResetToken,
   updateUserPassword,
 } from "../repositories/user.repository";
+import { prisma } from "../lib/prisma";
 import { sendActivationEmail, sendPasswordResetEmail } from "./email.service";
 
 export async function registerUser(name: string, email: string, password: string, role: string) {
@@ -88,4 +89,23 @@ export async function resetPassword(token: string, newPassword: string) {
   const hashed = await bcrypt.hash(newPassword, 10);
   await updateUserPassword(user.id, hashed);
   return { message: "Contraseña actualizada correctamente" };
+}
+
+export async function updateProfile(id: number, name: string) {
+  return prisma.user.update({
+    where: { id },
+    data: { name },
+    select: { id: true, name: true, email: true, role: true },
+  });
+}
+
+export async function changePassword(id: number, currentPassword: string, newPassword: string) {
+  const user = await findUserById(id);
+  if (!user) throw new Error("USER_NOT_FOUND");
+
+  const valid = await bcrypt.compare(currentPassword, user.password);
+  if (!valid) throw new Error("INVALID_PASSWORD");
+
+  const hashed = await bcrypt.hash(newPassword, 10);
+  await prisma.user.update({ where: { id }, data: { password: hashed } });
 }

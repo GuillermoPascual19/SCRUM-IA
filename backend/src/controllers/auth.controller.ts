@@ -3,6 +3,7 @@ import { AuthRequest } from "../middleware/auth";
 import {
   registerUser, loginUser, getMe,
   activateAccount, requestPasswordReset, resetPassword,
+  updateProfile, changePassword,
 } from "../services/auth.service";
 
 export async function register(req: Request, res: Response) {
@@ -78,6 +79,38 @@ export async function forgotPassword(req: Request, res: Response) {
     await requestPasswordReset(email);
     res.json({ message: "Si el email existe recibirás un enlace de recuperación" });
   } catch {
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+}
+
+export async function updateProfileController(req: AuthRequest, res: Response) {
+  const { name } = req.body;
+  if (!name?.trim()) {
+    res.status(400).json({ error: "El nombre es requerido" });
+    return;
+  }
+  try {
+    const user = await updateProfile(req.user!.id, name.trim());
+    res.json(user);
+  } catch {
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+}
+
+export async function changePasswordController(req: AuthRequest, res: Response) {
+  const { currentPassword, newPassword } = req.body;
+  if (!currentPassword || !newPassword) {
+    res.status(400).json({ error: "Todos los campos son requeridos" });
+    return;
+  }
+  try {
+    await changePassword(req.user!.id, currentPassword, newPassword);
+    res.json({ message: "Contraseña actualizada correctamente" });
+  } catch (e: any) {
+    if (e.message === "INVALID_PASSWORD") {
+      res.status(400).json({ error: "La contraseña actual es incorrecta" });
+      return;
+    }
     res.status(500).json({ error: "Error interno del servidor" });
   }
 }
