@@ -41,7 +41,7 @@ export default function Sidebar() {
   }
 
   return (
-    <aside className="w-56 h-screen flex flex-col bg-[var(--background)]/50 backdrop-blur-2xl border-r border-[var(--border)]/40 relative z-20">
+    <aside className="w-56 shrink-0 my-3 ml-3 h-[calc(100vh-24px)] flex flex-col bg-[var(--background)]/70 backdrop-blur-2xl border border-[var(--border)]/40 rounded-2xl relative z-20 overflow-hidden">
       <div className="p-4 border-b border-[var(--border)]">
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-md bg-[var(--primary)] flex items-center justify-center shrink-0 overflow-hidden">
