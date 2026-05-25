@@ -64,7 +64,7 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="hidden items-center gap-2 md:flex">
-            {["Estudiante", "Profesor", "Coordinador", "Admin"].map((role) => (
+            {["Developer, Scrum Master, Product Owner"].map((role) => (
               <span key={role} className="rounded-md border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-gray-400">
                 {role}
               </span>
