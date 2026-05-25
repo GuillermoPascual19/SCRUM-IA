@@ -6,6 +6,7 @@ import { useAuthStore } from "@/store/auth.store";
 import { useThemeStore } from "@/store/theme.store";
 import { useRouter } from "next/navigation";
 import { useTfgStore } from "@/store/tfg.store";
+import { LayoutDashboard, Zap, CalendarDays, List, Sparkles, FileText } from "lucide-react";
 
 const platformNav = [
   { name: "Dashboard", href: "/dashboard", icon: "⊞" },
@@ -25,12 +26,12 @@ export default function Sidebar() {
   const isProf = user?.role === "profesor" || user?.role === "coordinador" || user?.role === "admin";
 
   const tfgNav = tfgId ? [
-    { name: "Resumen", href: `/tfgs/${tfgId}`, icon: "◉" },
-    { name: "Sprints", href: `/tfgs/${tfgId}/sprints`, icon: "◎" },
-    { name: "Planificación", href: `/tfgs/${tfgId}/planner`, icon: "📅" },
-    { name: "Backlog", href: `/tfgs/${tfgId}/backlog`, icon: "☰" },
-    { name: "Evaluación IA", href: `/tfgs/${tfgId}/grades`, icon: "✦" },
-    ...(isProf ? [{ name: "Informes", href: `/tfgs/${tfgId}/reports`, icon: "◈" }] : []),
+    { name: "Resumen", href: `/tfgs/${tfgId}`, icon: <LayoutDashboard size={16} /> },
+    { name: "Sprints", href: `/tfgs/${tfgId}/sprints`, icon: <Zap size={16} /> },
+    { name: "Planificación", href: `/tfgs/${tfgId}/planner`, icon: <CalendarDays size={16} /> },
+    { name: "Backlog", href: `/tfgs/${tfgId}/backlog`, icon: <List size={16} /> },
+    { name: "Evaluación IA", href: `/tfgs/${tfgId}/grades`, icon: <Sparkles size={16} /> },
+    ...(isProf ? [{ name: "Informes", href: `/tfgs/${tfgId}/reports`, icon: <FileText size={16} /> }] : []),
   ] : [];
 
 
@@ -158,7 +159,7 @@ export default function Sidebar() {
       </nav>
 
       <div className="p-3 border-t border-[var(--border)] space-y-3">
-        <div className="flex items-center gap-2 px-2">
+        <Link href="/profile" className={`flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-[var(--accent)] transition-colors ${pathname === "/profile" ? "bg-[var(--accent)]" : ""}`}>
           <div className="w-7 h-7 rounded-full bg-[var(--primary)] flex items-center justify-center text-[var(--primary-foreground)] text-xs font-bold shrink-0">
             {user?.name?.charAt(0).toUpperCase()}
           </div>
@@ -166,7 +167,7 @@ export default function Sidebar() {
             <p className="text-xs font-medium text-[var(--foreground)] truncate">{user?.name}</p>
             <p className="text-xs text-[var(--muted-foreground)] truncate">{user?.role}</p>
           </div>
-        </div>
+        </Link>
 
         {activeTfg && (
           <div className="px-2 py-2 rounded-lg bg-[var(--accent)]">
