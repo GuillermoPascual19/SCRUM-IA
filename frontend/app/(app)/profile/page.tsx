@@ -77,7 +77,8 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="max-w-xl space-y-8">
+    <div className="flex justify-center">
+    <div className="w-full max-w-xl space-y-8">
       <div>
         <p className="text-xs font-semibold text-[var(--primary)] uppercase tracking-wider mb-1">Cuenta</p>
         <h1 className="text-2xl font-bold text-[var(--foreground)]">Perfil</h1>
@@ -183,6 +184,7 @@ export default function ProfilePage() {
           </button>
         </form>
       </div>
+    </div>
     </div>
   );
 }
