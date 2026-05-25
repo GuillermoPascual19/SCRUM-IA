@@ -29,6 +29,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         className="absolute bottom-0 right-0 w-[600px] h-[600px] rounded-full opacity-10 blur-3xl pointer-events-none"
         style={{ background: "var(--primary)" }}
       />
+      <div
+        className="absolute top-0 left-0 w-[400px] h-[400px] rounded-full opacity-5 blur-3xl pointer-events-none"
+        style={{ background: "var(--primary)" }}
+      />
       <Sidebar />
       <main className="flex-1 overflow-y-auto p-6 relative z-10">
         {children}
