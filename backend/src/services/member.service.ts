@@ -7,6 +7,7 @@ import {
 } from "../repositories/member.repository";
 import { findTfgById } from "../repositories/tfg.repository";
 import { findUserById } from "../repositories/user.repository";
+import { notify } from "./notification.service";
 
 export async function getMembersByTfg(tfgId: number) {
   const tfg = await findTfgById(tfgId);
@@ -34,7 +35,9 @@ export async function addMemberToTfg(
   const existing = await findMember(tfgId, userId);
   if (existing) throw new Error("ALREADY_MEMBER");
 
-  return addMember({ tfgId, userId, scrumRole });
+  const member = await addMember({ tfgId, userId, scrumRole });
+  notify(userId, `Has sido añadido al TFG "${tfg.title}".`, "member_added", `/tfgs/${tfgId}`);
+  return member;
 }
 
 export async function updateScrumRole(

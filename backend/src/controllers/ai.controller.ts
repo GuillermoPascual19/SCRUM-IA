@@ -16,139 +16,70 @@ import {
 export async function generate(req: AuthRequest, res: Response) {
   const { sprintId, studentId } = req.body;
   const tfgId = Number(req.params.tfgId);
-
   if (!sprintId || !studentId) {
     res.status(400).json({ error: "sprintId y studentId son requeridos" });
     return;
   }
-
-  try {
-    const evaluation = await generateEvaluation(
-      tfgId,
-      Number(sprintId),
-      Number(studentId),
-      req.user!.id
-    );
-    res.status(201).json(evaluation);
-  } catch (e: any) {
-    if (e.message === "DATA_NOT_FOUND") {
-      res.status(404).json({ error: "Datos no encontrados" });
-      return;
-    }
-    if (e.message === "AI_INVALID_RESPONSE" || e.message === "AI_INVALID_JSON") {
-      res.status(500).json({ error: "Error al procesar la respuesta de la IA" });
-      return;
-    }
-    res.status(500).json({ error: "Error al generar la evaluación" });
-  }
+  const evaluation = await generateEvaluation(
+    tfgId,
+    Number(sprintId),
+    Number(studentId),
+    req.user!.id
+  );
+  res.status(201).json(evaluation);
 }
 
 export async function getByTfg(req: AuthRequest, res: Response) {
-  try {
-    const evaluations = await getEvaluationsByTfg(Number(req.params.tfgId));
-    res.json(evaluations);
-  } catch {
-    res.status(500).json({ error: "Error interno del servidor" });
-  }
+  const evaluations = await getEvaluationsByTfg(Number(req.params.tfgId));
+  res.json(evaluations);
 }
 
 export async function update(req: AuthRequest, res: Response) {
-  try {
-    const evaluation = await updateEvaluation(Number(req.params.id), req.body);
-    res.json(evaluation);
-  } catch {
-    res.status(500).json({ error: "Error interno del servidor" });
-  }
+  const evaluation = await updateEvaluation(Number(req.params.id), req.body);
+  res.json(evaluation);
 }
 
 export async function generateFinal(req: AuthRequest, res: Response) {
   const { studentId } = req.body;
   const tfgId = Number(req.params.tfgId);
-
   if (!studentId) {
     res.status(400).json({ error: "studentId es requerido" });
     return;
   }
-
-  try {
-    const grade = await generateFinalGrade(tfgId, Number(studentId), req.user!.id);
-    res.status(201).json(grade);
-  } catch (e: any) {
-    if (e.message === "NO_EVALUATIONS") {
-      res.status(400).json({ error: "El estudiante no tiene evaluaciones de sprint" });
-      return;
-    }
-    if (e.message === "AI_INVALID_RESPONSE" || e.message === "AI_INVALID_JSON") {
-      res.status(500).json({ error: "Error al procesar la respuesta de la IA" });
-      return;
-    }
-    res.status(500).json({ error: "Error al generar la nota final" });
-  }
+  const grade = await generateFinalGrade(tfgId, Number(studentId), req.user!.id);
+  res.status(201).json(grade);
 }
 
 export async function getFinalGrades(req: AuthRequest, res: Response) {
-  try {
-    const grades = await getFinalGradesByTfg(Number(req.params.tfgId));
-    res.json(grades);
-  } catch {
-    res.status(500).json({ error: "Error interno del servidor" });
-  }
+  const grades = await getFinalGradesByTfg(Number(req.params.tfgId));
+  res.json(grades);
 }
 
 export async function updateFinal(req: AuthRequest, res: Response) {
-  try {
-    const grade = await updateFinalGrade(Number(req.params.id), req.body);
-    res.json(grade);
-  } catch {
-    res.status(500).json({ error: "Error interno del servidor" });
-  }
+  const grade = await updateFinalGrade(Number(req.params.id), req.body);
+  res.json(grade);
 }
 
 export async function retroInsights(req: AuthRequest, res: Response) {
   const tfgId = Number(req.params.tfgId);
   const sprintId = Number(req.params.sprintId);
-
-  try {
-    const insights = await generateRetroInsights(tfgId, sprintId);
-    res.json(insights);
-  } catch (e: any) {
-    if (e.message === "SPRINT_NOT_FOUND") {
-      res.status(404).json({ error: "Sprint no encontrado" });
-      return;
-    }
-    res.status(500).json({ error: "Error al generar insights" });
-  }
+  const insights = await generateRetroInsights(tfgId, sprintId);
+  res.json(insights);
 }
 
 export async function tfgSummary(req: AuthRequest, res: Response) {
   const tfgId = Number(req.params.tfgId);
   const { prompt } = req.body;
-  try {
-    const result = await generateTfgSummary(tfgId, req.user!.id, prompt);
-    res.status(201).json(result);
-  } catch (e: any) {
-    if (e.message === "TFG_NOT_FOUND") {
-      res.status(404).json({ error: "TFG no encontrado" });
-      return;
-    }
-    res.status(500).json({ error: "Error al generar el informe" });
-  }
+  const result = await generateTfgSummary(tfgId, req.user!.id, prompt);
+  res.status(201).json(result);
 }
 
 export async function getReports(req: AuthRequest, res: Response) {
-  try {
-    const reports = await getTfgReports(Number(req.params.tfgId));
-    res.json(reports);
-  } catch {
-    res.status(500).json({ error: "Error interno del servidor" });
-  }
+  const reports = await getTfgReports(Number(req.params.tfgId));
+  res.json(reports);
 }
 
 export async function deleteReport(req: AuthRequest, res: Response) {
-  try {
-    await deleteTfgReport(Number(req.params.reportId), Number(req.params.tfgId));
-    res.json({ message: "Informe eliminado" });
-  } catch {
-    res.status(500).json({ error: "Error interno del servidor" });
-  }
+  await deleteTfgReport(Number(req.params.reportId), Number(req.params.tfgId));
+  res.json({ message: "Informe eliminado" });
 }

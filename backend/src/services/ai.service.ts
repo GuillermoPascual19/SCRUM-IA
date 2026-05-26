@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { prisma } from "../lib/prisma";
+import { notify } from "./notification.service";
 
 const client = new Anthropic({ apiKey: process.env.AI_API_KEY });
 
@@ -111,6 +112,13 @@ Criterios de evaluación:
       aiGenerated: true,
     },
   });
+
+  notify(
+    studentId,
+    `Tu evaluación del ${sprint!.name} en "${tfg!.title}" ya está disponible.`,
+    "evaluation",
+    `/tfgs/${tfgId}/grades`
+  );
 }
 
 export async function getEvaluationsByTfg(tfgId: number) {
@@ -133,10 +141,23 @@ export async function updateEvaluation(
     weight?: number;
   }
 ) {
-  return prisma.evaluation.update({
+  const evaluation = await prisma.evaluation.update({
     where: { id },
     data: { ...data, reviewedByProfessor: true },
+    include: {
+      sprint: { select: { name: true } },
+      tfg: { select: { title: true } },
+    },
   });
+
+  notify(
+    evaluation.studentId,
+    `El profesor ha revisado tu evaluación del ${evaluation.sprint.name} en "${evaluation.tfg.title}".`,
+    "evaluation_reviewed",
+    `/tfgs/${evaluation.tfgId}/grades`
+  );
+
+  return evaluation;
 }
 
 export async function generateFinalGrade(tfgId: number, studentId: number, professorId: number) {
