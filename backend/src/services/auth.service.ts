@@ -100,7 +100,7 @@ export async function updateProfile(id: number, name: string) {
 }
 
 export async function changePassword(id: number, currentPassword: string, newPassword: string) {
-  const user = await findUserById(id);
+  const user = await prisma.user.findUnique({ where: { id }, select: { id: true, password: true } });
   if (!user) throw new Error("USER_NOT_FOUND");
 
   const valid = await bcrypt.compare(currentPassword, user.password);
