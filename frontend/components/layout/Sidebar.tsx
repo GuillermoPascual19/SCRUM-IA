@@ -6,7 +6,7 @@ import { useAuthStore } from "@/store/auth.store";
 import { useThemeStore } from "@/store/theme.store";
 import { useRouter } from "next/navigation";
 import { useTfgStore } from "@/store/tfg.store";
-import { LayoutDashboard, Zap, CalendarDays, List, Sparkles, FileText, Globe } from "lucide-react";
+import { LayoutDashboard, Zap, CalendarDays, List, Sparkles, FileText, Globe, GitCommit } from "lucide-react";
 
 const platformNav = [
   { name: "Dashboard", href: "/dashboard", icon: "⊞" },
@@ -31,6 +31,7 @@ export default function Sidebar() {
     { name: "Planificación", href: `/tfgs/${tfgId}/planner`, icon: <CalendarDays size={16} /> },
     { name: "Backlog", href: `/tfgs/${tfgId}/backlog`, icon: <List size={16} /> },
     { name: "Evaluación IA", href: `/tfgs/${tfgId}/grades`, icon: <Sparkles size={16} /> },
+    { name: "Commits", href: `/tfgs/${tfgId}/commits`, icon: <GitCommit size={16} /> },
     ...(isProf ? [{ name: "Informes", href: `/tfgs/${tfgId}/reports`, icon: <FileText size={16} /> }] : []),
   ] : [];
 
