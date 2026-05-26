@@ -2,7 +2,11 @@ import { prisma } from "../lib/prisma";
 
 export async function findAllTfgs() {
   return prisma.tfg.findMany({
-    include: { tutor: { select: { id: true, name: true, email: true } } },
+    include: {
+      tutor: { select: { id: true, name: true, email: true } },
+      members: { include: { user: { select: { id: true, name: true, email: true, role: true } } } },
+    },
+    orderBy: { createdAt: "desc" },
   });
 }
 

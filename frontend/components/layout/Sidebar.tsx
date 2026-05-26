@@ -6,7 +6,7 @@ import { useAuthStore } from "@/store/auth.store";
 import { useThemeStore } from "@/store/theme.store";
 import { useRouter } from "next/navigation";
 import { useTfgStore } from "@/store/tfg.store";
-import { LayoutDashboard, Zap, CalendarDays, List, Sparkles, FileText } from "lucide-react";
+import { LayoutDashboard, Zap, CalendarDays, List, Sparkles, FileText, Globe } from "lucide-react";
 
 const platformNav = [
   { name: "Dashboard", href: "/dashboard", icon: "⊞" },
@@ -75,6 +75,16 @@ export default function Sidebar() {
                 {item.name}
               </Link>
             ))}
+            {(user?.role === "coordinador" || user?.role === "admin") && (
+              <Link href="/coordinator"
+                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  pathname === "/coordinator"
+                    ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
+                    : "text-[var(--foreground)] hover:bg-[var(--accent)]"
+                }`}>
+                <Globe size={16} /> Coordinación
+              </Link>
+            )}
           </div>
         </div>
 
