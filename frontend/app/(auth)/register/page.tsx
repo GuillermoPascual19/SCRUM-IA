@@ -13,7 +13,7 @@ export default function RegisterPage() {
     email: "",
     password: "",
     confirmPassword: "",
-    role: "estudiante",
+    role: "student",
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -215,9 +215,9 @@ export default function RegisterPage() {
               <label className="block text-xs font-medium text-gray-400 mb-1.5">Rol académico</label>
               <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}
                 className="w-full px-4 py-2.5 rounded-lg bg-[#111] border border-[#333] text-white text-sm focus:outline-none focus:border-[#22c55e] transition-colors">
-                <option value="estudiante">Estudiante</option>
-                <option value="profesor">Profesor</option>
-                <option value="coordinador">Coordinador</option>
+                <option value="student">Estudiante</option>
+                <option value="teacher">Profesor</option>
+                <option value="coordinator">Coordinador</option>
               </select>
             </div>
 

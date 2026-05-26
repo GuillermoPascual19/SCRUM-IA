@@ -38,7 +38,7 @@ interface FinalGrade {
 }
 
 function isProfessor(role?: string) {
-  return role === "profesor" || role === "coordinador" || role === "admin";
+  return role === "teacher" || role === "coordinator" || role === "admin";
 }
 
 export default function GradesPage() {

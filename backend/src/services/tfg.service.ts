@@ -19,9 +19,8 @@ export async function getTfgById(id: number) {
 }
 
 export async function getTfgsByUser(userId: number, role: string) {
-  if (role === "profesor" || role === "coordinador" || role === "admin") {
-    return findTfgsByTutor(userId);
-  }
+  if (role === "coordinator" || role === "admin") return findAllTfgs();
+  if (role === "teacher") return findTfgsByTutor(userId);
   return findTfgsByMember(userId);
 }
 
@@ -54,7 +53,7 @@ export async function updateExistingTfg(
   const tfg = await findTfgById(id);
   if (!tfg) throw new Error("TFG_NOT_FOUND");
 
-  if (userRole !== "admin" && userRole !== "coordinador" && tfg.tutorId !== userId) {
+  if (userRole !== "admin" && userRole !== "coordinator" && tfg.tutorId !== userId) {
     throw new Error("FORBIDDEN");
   }
 
@@ -65,7 +64,7 @@ export async function deleteExistingTfg(id: number, userId: number, userRole: st
   const tfg = await findTfgById(id);
   if (!tfg) throw new Error("TFG_NOT_FOUND");
 
-  if (userRole !== "admin" && userRole !== "coordinador" && tfg.tutorId !== userId) {
+  if (userRole !== "admin" && userRole !== "coordinator" && tfg.tutorId !== userId) {
     throw new Error("FORBIDDEN");
   }
 

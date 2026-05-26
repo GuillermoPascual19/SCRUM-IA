@@ -5,8 +5,8 @@ import { authenticate, requireRole } from "../middleware/auth";
 const router = Router({ mergeParams: true });
 
 router.get("/", authenticate, getMembers);
-router.post("/", authenticate, requireRole("profesor", "coordinador", "admin"), addMember);
-router.put("/:userId", authenticate, requireRole("profesor", "coordinador", "admin"), updateRole);
-router.delete("/:userId", authenticate, requireRole("profesor", "coordinador", "admin"), removeMember);
+router.post("/", authenticate, requireRole("teacher", "coordinator", "admin"), addMember);
+router.put("/:userId", authenticate, requireRole("teacher", "coordinator", "admin"), updateRole);
+router.delete("/:userId", authenticate, requireRole("teacher", "coordinator", "admin"), removeMember);
 
 export default router;

@@ -34,7 +34,7 @@ export async function createNewUserStory(
   const tfg = await findTfgById(tfgId);
   if (!tfg) throw new Error("TFG_NOT_FOUND");
 
-  if (requesterRole !== "admin" && requesterRole !== "coordinador" && tfg.tutorId !== requesterId) {
+  if (requesterRole !== "admin" && requesterRole !== "coordinator" && tfg.tutorId !== requesterId) {
     throw new Error("FORBIDDEN");
   }
 
@@ -58,7 +58,7 @@ export async function updateExistingUserStory(
   if (!story) throw new Error("USER_STORY_NOT_FOUND");
 
   const tfg = await findTfgById(story.tfgId);
-  if (requesterRole !== "admin" && requesterRole !== "coordinador" && tfg!.tutorId !== requesterId) {
+  if (requesterRole !== "admin" && requesterRole !== "coordinator" && tfg!.tutorId !== requesterId) {
     throw new Error("FORBIDDEN");
   }
 
@@ -81,7 +81,7 @@ export async function deleteExistingUserStory(
   if (!story) throw new Error("USER_STORY_NOT_FOUND");
 
   const tfg = await findTfgById(story.tfgId);
-  if (requesterRole !== "admin" && requesterRole !== "coordinador" && tfg!.tutorId !== requesterId) {
+  if (requesterRole !== "admin" && requesterRole !== "coordinator" && tfg!.tutorId !== requesterId) {
     throw new Error("FORBIDDEN");
   }
 

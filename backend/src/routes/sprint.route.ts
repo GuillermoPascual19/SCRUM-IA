@@ -5,11 +5,11 @@ import { authenticate, requireRole } from "../middleware/auth";
 const router = Router({ mergeParams: true });
 
 router.get("/", authenticate, getByTfg);
-router.post("/", authenticate, requireRole("profesor", "coordinador", "admin"), create);
+router.post("/", authenticate, requireRole("teacher", "coordinator", "admin"), create);
 router.get("/planner", authenticate, planner);
 router.get("/:id", authenticate, getById);
 router.get("/:id/burndown", authenticate, burndown);
-router.put("/:id", authenticate, requireRole("profesor", "coordinador", "admin"), update);
-router.delete("/:id", authenticate, requireRole("profesor", "coordinador", "admin"), remove);
+router.put("/:id", authenticate, requireRole("teacher", "coordinator", "admin"), update);
+router.delete("/:id", authenticate, requireRole("teacher", "coordinator", "admin"), remove);
 
 export default router;

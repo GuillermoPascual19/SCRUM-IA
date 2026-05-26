@@ -36,7 +36,7 @@ export async function createNewSprint(
   const tfg = await findTfgById(tfgId);
   if (!tfg) throw new Error("TFG_NOT_FOUND");
 
-  if (requesterRole !== "admin" && requesterRole !== "coordinador" && tfg.tutorId !== requesterId) {
+  if (requesterRole !== "admin" && requesterRole !== "coordinator" && tfg.tutorId !== requesterId) {
     throw new Error("FORBIDDEN");
   }
 
@@ -65,7 +65,7 @@ export async function updateExistingSprint(
   if (!sprint) throw new Error("SPRINT_NOT_FOUND");
 
   const tfg = await findTfgById(sprint.tfgId);
-  if (requesterRole !== "admin" && requesterRole !== "coordinador" && tfg!.tutorId !== requesterId) {
+  if (requesterRole !== "admin" && requesterRole !== "coordinator" && tfg!.tutorId !== requesterId) {
     throw new Error("FORBIDDEN");
   }
 
@@ -81,7 +81,7 @@ export async function deleteExistingSprint(
   if (!sprint) throw new Error("SPRINT_NOT_FOUND");
 
   const tfg = await findTfgById(sprint.tfgId);
-  if (requesterRole !== "admin" && requesterRole !== "coordinador" && tfg!.tutorId !== requesterId) {
+  if (requesterRole !== "admin" && requesterRole !== "coordinator" && tfg!.tutorId !== requesterId) {
     throw new Error("FORBIDDEN");
   }
 

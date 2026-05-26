@@ -10,7 +10,7 @@ import { useTfgStore } from "@/store/tfg.store";
 type Tab = "resumen" | "sprints" | "backlog" | "evaluacion";
 
 function isProfessor(role?: string) {
-  return role === "profesor" || role === "coordinador" || role === "admin";
+  return role === "teacher" || role === "coordinator" || role === "admin";
 }
 
 export default function TfgDetailPage() {
