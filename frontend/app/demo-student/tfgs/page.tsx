@@ -21,14 +21,14 @@ export default function DemoTfgsPage() {
             </div>
             <p className="text-sm text-[var(--muted-foreground)] mb-4 max-w-2xl">{DEMO_TFG.description}</p>
             <div className="flex items-center gap-6 text-xs text-[var(--muted-foreground)]">
-              <span>AÃ±o: {DEMO_TFG.academicYear}</span>
+              <span>Año: {DEMO_TFG.academicYear}</span>
               <span>{DEMO_TFG.members.length} miembros</span>
               <span>3 sprints</span>
             </div>
           </div>
           <div className="flex -space-x-2 ml-4">
             {DEMO_TFG.members.map((m) => (
-              <div key={m.name} title={`${m.name} Â· ${m.scrumRole}`}
+              <div key={m.name} title={`${m.name} · ${m.scrumRole}`}
                 className="w-8 h-8 rounded-full bg-[var(--primary)] border-2 border-[var(--card)] flex items-center justify-center text-[var(--primary-foreground)] text-xs font-bold">
                 {m.name.charAt(0)}
               </div>
@@ -37,7 +37,7 @@ export default function DemoTfgsPage() {
         </div>
         <div className="mt-4 pt-4 border-t border-[var(--border)] flex items-center gap-2">
           <span className="text-xs px-2 py-1 rounded-md bg-[var(--accent)] text-[var(--accent-foreground)] font-medium">{DEMO_USER.name}</span>
-          <span className="text-xs text-[var(--muted-foreground)]">Â· Developer</span>
+          <span className="text-xs text-[var(--muted-foreground)]">Developer</span>
         </div>
       </Link>
     </div>

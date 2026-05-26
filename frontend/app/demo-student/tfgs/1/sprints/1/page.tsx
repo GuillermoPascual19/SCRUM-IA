@@ -81,7 +81,7 @@ export default function DemoSprintDetailPage() {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm text-[var(--foreground)] truncate">{c.message}</p>
-                <p className="text-xs text-[var(--muted-foreground)]">{c.author} Â· {c.date}</p>
+                <p className="text-xs text-[var(--muted-foreground)]">{c.author} · {c.date}</p>
               </div>
               <div className="text-xs shrink-0 flex gap-2">
                 <span className="text-green-400">+{c.linesAdded}</span>
