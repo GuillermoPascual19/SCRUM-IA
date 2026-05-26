@@ -6,7 +6,7 @@ import { useAuthStore } from "@/store/auth.store";
 import { useThemeStore } from "@/store/theme.store";
 import { useRouter } from "next/navigation";
 import { useTfgStore } from "@/store/tfg.store";
-import { LayoutDashboard, Zap, CalendarDays, List, Sparkles, FileText, Globe, GitCommit } from "lucide-react";
+import { LayoutDashboard, Zap, CalendarDays, List, Sparkles, FileText, Globe, GitCommit, ShieldCheck } from "lucide-react";
 
 const platformNav = [
   { name: "Dashboard", href: "/dashboard", icon: "⊞" },
@@ -84,6 +84,16 @@ export default function Sidebar() {
                     : "text-[var(--foreground)] hover:bg-[var(--accent)]"
                 }`}>
                 <Globe size={16} /> Coordinación
+              </Link>
+            )}
+            {user?.role === "admin" && (
+              <Link href="/admin"
+                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  pathname === "/admin"
+                    ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
+                    : "text-[var(--foreground)] hover:bg-[var(--accent)]"
+                }`}>
+                <ShieldCheck size={16} /> Administración
               </Link>
             )}
           </div>
