@@ -23,7 +23,7 @@ export default function Sidebar() {
   const tfgIdMatch = pathname.match(/^\/tfgs\/(\d+)/);
   const tfgId = tfgIdMatch ? tfgIdMatch[1] : null;
 
-  const isProf = user?.role === "profesor" || user?.role === "coordinador" || user?.role === "admin";
+  const isProf = user?.role === "teacher" || user?.role === "coordinator" || user?.role === "admin";
 
   const tfgNav = tfgId ? [
     { name: "Resumen", href: `/tfgs/${tfgId}`, icon: <LayoutDashboard size={16} /> },
@@ -75,7 +75,7 @@ export default function Sidebar() {
                 {item.name}
               </Link>
             ))}
-            {(user?.role === "coordinador" || user?.role === "admin") && (
+            {(user?.role === "coordinator" || user?.role === "admin") && (
               <Link href="/coordinator"
                 className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                   pathname === "/coordinator"

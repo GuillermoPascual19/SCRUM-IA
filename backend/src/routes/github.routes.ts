@@ -12,7 +12,7 @@ import { authenticate, requireRole } from "../middleware/auth";
 import { prisma } from "../lib/prisma";
 
 const tfgRouter = Router({ mergeParams: true });
-tfgRouter.post("/sync", authenticate, requireRole("profesor", "coordinador", "admin"), sync);
+tfgRouter.post("/sync", authenticate, requireRole("teacher", "coordinator", "admin"), sync);
 tfgRouter.get("/commits", authenticate, getByTfg);
 tfgRouter.get("/sprints/:sprintId/commits", authenticate, getBySprint);
 

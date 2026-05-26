@@ -31,7 +31,7 @@ export default function CoordinatorPage() {
   const [tutorFilter, setTutorFilter] = useState("todos");
 
   useEffect(() => {
-    if (user && user.role !== "coordinador" && user.role !== "admin") {
+    if (user && user.role !== "coordinator" && user.role !== "admin") {
       router.replace("/dashboard");
     }
   }, [user, router]);

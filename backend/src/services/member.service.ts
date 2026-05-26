@@ -24,7 +24,7 @@ export async function addMemberToTfg(
   const tfg = await findTfgById(tfgId);
   if (!tfg) throw new Error("TFG_NOT_FOUND");
 
-  if (requesterRole !== "admin" && requesterRole !== "coordinador" && tfg.tutorId !== requesterId) {
+  if (requesterRole !== "admin" && requesterRole !== "coordinator" && tfg.tutorId !== requesterId) {
     throw new Error("FORBIDDEN");
   }
 
@@ -47,7 +47,7 @@ export async function updateScrumRole(
   const tfg = await findTfgById(tfgId);
   if (!tfg) throw new Error("TFG_NOT_FOUND");
 
-  if (requesterRole !== "admin" && requesterRole !== "coordinador" && tfg.tutorId !== requesterId) {
+  if (requesterRole !== "admin" && requesterRole !== "coordinator" && tfg.tutorId !== requesterId) {
     throw new Error("FORBIDDEN");
   }
 
@@ -66,7 +66,7 @@ export async function removeMemberFromTfg(
   const tfg = await findTfgById(tfgId);
   if (!tfg) throw new Error("TFG_NOT_FOUND");
 
-  if (requesterRole !== "admin" && requesterRole !== "coordinador" && tfg.tutorId !== requesterId) {
+  if (requesterRole !== "admin" && requesterRole !== "coordinator" && tfg.tutorId !== requesterId) {
     throw new Error("FORBIDDEN");
   }
 

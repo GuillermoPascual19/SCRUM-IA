@@ -1,4 +1,4 @@
-export const DEMO_USER = { name: "Alex García", email: "alex.garcia@usal.es", role: "estudiante" };
+export const DEMO_USER = { name: "Alex García", email: "alex.garcia@usal.es", role: "student" };
 
 export const DEMO_TFG = {
   title: "EcoTrack TFG",

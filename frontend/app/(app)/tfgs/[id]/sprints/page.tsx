@@ -7,7 +7,7 @@ import { Sprint } from "@/lib/types";
 import { useAuthStore } from "@/store/auth.store";
 
 function isProfessor(role?: string) {
-  return role === "profesor" || role === "coordinador" || role === "admin";
+  return role === "teacher" || role === "coordinator" || role === "admin";
 }
 
 export default function SprintsPage() {

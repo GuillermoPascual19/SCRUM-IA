@@ -6,8 +6,8 @@ import { useAuthStore } from "@/store/auth.store";
 
 const ROLE_LABELS: Record<string, string> = {
   student: "Estudiante",
-  profesor: "Profesor",
-  coordinador: "Coordinador",
+  teacher: "Profesor",
+  coordinator: "Coordinador",
   admin: "Administrador",
 };
 
