@@ -49,9 +49,9 @@ export default function CoordinatorPage() {
     }
   }
 
-  const tutors = Array.from(
-    new Map(tfgs.map((t) => [t.tutor?.id, t.tutor]).filter(([id]) => id != null)).values()
-  ) as { id: number; name: string; email: string }[];
+  const tutorMap = new Map<number, { id: number; name: string; email: string }>();
+  tfgs.forEach((t) => { if (t.tutor?.id != null) tutorMap.set(t.tutor.id, t.tutor as { id: number; name: string; email: string }); });
+  const tutors = Array.from(tutorMap.values());
 
   const filtered = tfgs.filter((t) => {
     const matchSearch =
