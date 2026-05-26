@@ -10,6 +10,7 @@ import taskRoutes from "./routes/task.route";
 import retrospectiveRoutes from "./routes/retrospective.routes";
 import aiRoutes from "./routes/ai.routes";
 import { tfgRouter, oauthRouter } from "./routes/github.routes";
+import adminRoutes from "./routes/admin.routes";
 
 import { authenticate } from "./middleware/auth";
 import { prisma } from "./lib/prisma";
@@ -31,6 +32,7 @@ app.use("/api/tfgs/:tfgId/sprints/:sprintId/retrospective", retrospectiveRoutes)
 app.use("/api/tfgs/:tfgId/github", tfgRouter);
 app.use("/api/github", oauthRouter);
 app.use("/api/tfgs/:tfgId/evaluations", aiRoutes);
+app.use("/api/admin", adminRoutes);
 
 app.post("/api/auth/find-user", authenticate, async (req: any, res: any) => {
   try {
