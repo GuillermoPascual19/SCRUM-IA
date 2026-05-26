@@ -7,6 +7,7 @@ import { useThemeStore } from "@/store/theme.store";
 import { useRouter } from "next/navigation";
 import { useTfgStore } from "@/store/tfg.store";
 import { LayoutDashboard, Zap, CalendarDays, List, Sparkles, FileText, Globe, GitCommit, ShieldCheck } from "lucide-react";
+import NotificationBell from "@/components/layout/NotificationBell";
 
 const platformNav = [
   { name: "Dashboard", href: "/dashboard", icon: "⊞" },
@@ -42,7 +43,7 @@ export default function Sidebar() {
   }
 
   return (
-    <aside className="w-56 shrink-0 my-3 ml-3 h-[calc(100vh-24px)] flex flex-col bg-[var(--background)]/70 backdrop-blur-2xl border border-[var(--border)]/40 rounded-2xl relative z-20 overflow-hidden">
+    <aside className="w-56 shrink-0 my-3 ml-3 h-[calc(100vh-24px)] flex flex-col bg-[var(--background)]/70 backdrop-blur-2xl border border-[var(--border)]/40 rounded-2xl relative z-20">
       <div className="p-4 border-b border-[var(--border)]">
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-md bg-[var(--primary)] flex items-center justify-center shrink-0 overflow-hidden">
@@ -180,15 +181,18 @@ export default function Sidebar() {
       </nav>
 
       <div className="p-3 border-t border-[var(--border)] space-y-3">
-        <Link href="/profile" className={`flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-[var(--accent)] transition-colors ${pathname === "/profile" ? "bg-[var(--accent)]" : ""}`}>
-          <div className="w-7 h-7 rounded-full bg-[var(--primary)] flex items-center justify-center text-[var(--primary-foreground)] text-xs font-bold shrink-0">
-            {user?.name?.charAt(0).toUpperCase()}
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-xs font-medium text-[var(--foreground)] truncate">{user?.name}</p>
-            <p className="text-xs text-[var(--muted-foreground)] truncate">{user?.role}</p>
-          </div>
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link href="/profile" className={`flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-[var(--accent)] transition-colors flex-1 min-w-0 ${pathname === "/profile" ? "bg-[var(--accent)]" : ""}`}>
+            <div className="w-7 h-7 rounded-full bg-[var(--primary)] flex items-center justify-center text-[var(--primary-foreground)] text-xs font-bold shrink-0">
+              {user?.name?.charAt(0).toUpperCase()}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-medium text-[var(--foreground)] truncate">{user?.name}</p>
+              <p className="text-xs text-[var(--muted-foreground)] truncate">{user?.role}</p>
+            </div>
+          </Link>
+          <NotificationBell />
+        </div>
 
         {activeTfg && (
           <div className="px-2 py-2 rounded-lg bg-[var(--accent)]">

@@ -36,6 +36,7 @@ model User {
   studentGrades        TfgFinalGrade[]  @relation("StudentGrade")
   professorGrades      TfgFinalGrade[]  @relation("ProfessorGrade")
   generatedReports     TfgReport[]      @relation("ProfessorReport")
+  notifications        Notification[]
   
   @@map("users")
 }
@@ -231,6 +232,20 @@ model Retrospective {
   sprint   Sprint @relation(fields: [sprintId], references: [id])
 
   @@map("retrospectives")
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  message   String   @db.Text
+  type      String   @db.VarChar(50)
+  read      Boolean  @default(false)
+  link      String?  @db.VarChar(255)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  userId Int  @map("user_id")
+  user   User @relation(fields: [userId], references: [id])
+
+  @@map("notifications")
 }
 
 model TfgReport {

@@ -11,8 +11,10 @@ import retrospectiveRoutes from "./routes/retrospective.routes";
 import aiRoutes from "./routes/ai.routes";
 import { tfgRouter, oauthRouter } from "./routes/github.routes";
 import adminRoutes from "./routes/admin.routes";
+import notificationRoutes from "./routes/notification.routes";
 
 import { authenticate } from "./middleware/auth";
+import { errorHandler } from "./middleware/errorHandler";
 import { prisma } from "./lib/prisma";
 
 const app = express();
@@ -21,7 +23,6 @@ const PORT = process.env.PORT || 4000;
 app.use(cors({ origin: process.env.FRONTEND_URL || "http://localhost:3000" }));
 app.use(express.json());
 
-//TODO: DELETE THIS COMMENT; ITS JUST TO TEST DEPLOYMENT
 app.use("/api/auth", authRoutes);
 app.use("/api/tfgs", tfgRoutes);
 app.use("/api/tfgs/:tfgId/members", memberRoutes);
@@ -33,6 +34,7 @@ app.use("/api/tfgs/:tfgId/github", tfgRouter);
 app.use("/api/github", oauthRouter);
 app.use("/api/tfgs/:tfgId/evaluations", aiRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 app.post("/api/auth/find-user", authenticate, async (req: any, res: any) => {
   try {
@@ -72,6 +74,8 @@ app.get("/api/auth/search-users", authenticate, async (req: any, res: any) => {
 app.get("/health", (_req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
+
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Backend corriendo en http://localhost:${PORT}`);
