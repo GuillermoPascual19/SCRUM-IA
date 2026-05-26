@@ -96,10 +96,10 @@ export default function LandingPage() {
               <GithubIcon className="size-5" /> Registrarse y autorizar GitHub
             </Link>
             <Link
-              href="/login"
+              href="/demo-student/dashboard"
               className="flex items-center justify-center gap-2 rounded-lg border border-white/20 px-6 py-3 text-sm font-semibold text-white hover:bg-white/5 transition-colors"
             >
-              <UsersRound className="size-5" /> Ver panel docente
+              <UsersRound className="size-5" /> Ver demo
             </Link>
           </div>
         </div>
