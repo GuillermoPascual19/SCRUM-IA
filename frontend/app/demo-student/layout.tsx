@@ -8,9 +8,9 @@ import { DEMO_USER, DEMO_TFG } from "./data";
 const tfgNav = [
   { name: "Resumen", href: "/demo-student/tfgs/1", icon: <LayoutDashboard size={16} />, exact: true },
   { name: "Sprints", href: "/demo-student/tfgs/1/sprints", icon: <Zap size={16} /> },
-  { name: "PlanificaciÃ³n", href: "/demo-student/tfgs/1/planner", icon: <CalendarDays size={16} /> },
+  { name: "Planificación", href: "/demo-student/tfgs/1/planner", icon: <CalendarDays size={16} /> },
   { name: "Backlog", href: "/demo-student/tfgs/1/backlog", icon: <List size={16} /> },
-  { name: "EvaluaciÃ³n IA", href: "/demo-student/tfgs/1/grades", icon: <Sparkles size={16} /> },
+  { name: "Evaluación IA", href: "/demo-student/tfgs/1/grades", icon: <Sparkles size={16} /> },
 ];
 
 export default function DemoLayout({ children }: { children: React.ReactNode }) {
@@ -85,7 +85,7 @@ export default function DemoLayout({ children }: { children: React.ReactNode }) 
       <main className="flex-1 overflow-y-auto p-6 relative z-10">
         {/* Banner demo */}
         <div className="mb-4 flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--primary)]/10 border border-[var(--primary)]/30 text-xs text-[var(--primary)] font-medium">
-          <Sparkles size={13} /> Vista demo â€” datos de ejemplo Â· <Link href="/" className="underline underline-offset-2">RegÃ­strate para usar la plataforma real</Link>
+          <Sparkles size={13} /> Vista demo con datos de ejemplo <Link href="/" className="underline underline-offset-2">Regi­strate para usar la plataforma real</Link>
         </div>
         {children}
       </main>

@@ -6,9 +6,9 @@ export default function DemoPlannerPage() {
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-xs font-semibold text-[var(--primary)] uppercase tracking-wider mb-1">PlanificaciÃ³n</p>
+        <p className="text-xs font-semibold text-[var(--primary)] uppercase tracking-wider mb-1">Planificación</p>
         <h1 className="text-2xl font-bold text-[var(--foreground)]">Tablero Kanban</h1>
-        <p className="text-sm text-[var(--muted-foreground)] mt-1">Sprint 2 Â· Sistema de evaluaciÃ³n y dashboard analÃ­tico</p>
+        <p className="text-sm text-[var(--muted-foreground)] mt-1">Sprint 2 · Sistema de evaluación y dashboard analítico</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-[calc(100vh-220px)] min-h-[500px]">

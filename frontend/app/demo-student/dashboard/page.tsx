@@ -10,13 +10,13 @@ export default function DemoDashboard() {
     <div className="space-y-6">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-xs font-medium text-[var(--primary)] uppercase tracking-wider mb-1">Proyecto Â· {DEMO_TFG.title}</p>
+          <p className="text-xs font-medium text-[var(--primary)] uppercase tracking-wider mb-1">Proyecto {DEMO_TFG.title}</p>
           <h1 className="text-3xl font-bold text-[var(--foreground)]">Dashboard del equipo</h1>
           <p className="text-[var(--muted-foreground)] mt-1">Estado general del sprint, velocidad y actividad reciente del repositorio.</p>
         </div>
         <div className="flex gap-2">
-          <span className="flex items-center gap-2 px-4 py-2 rounded-lg border border-[var(--border)] text-sm font-medium text-[var(--foreground)]">âŽ‡ Repo conectado</span>
-          <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--primary)] text-[var(--primary-foreground)] text-sm font-medium hover:opacity-90">âœ¦ Generar informe IA</button>
+          <span className="flex items-center gap-2 px-4 py-2 rounded-lg border border-[var(--border)] text-sm font-medium text-[var(--foreground)]">Repo conectado</span>
+          <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--primary)] text-[var(--primary-foreground)] text-sm font-medium hover:opacity-90">Generar informe IA</button>
         </div>
       </div>
 
@@ -31,10 +31,10 @@ export default function DemoDashboard() {
             <p className="text-xs text-[var(--muted-foreground)]">Conectado como @alex-garcia-dev</p>
           </div>
         </div>
-        <span className="text-xs px-2 py-1 rounded-full bg-green-500/20 text-green-400 font-medium">âœ“ Conectado</span>
+        <span className="text-xs px-2 py-1 rounded-full bg-green-500/20 text-green-400 font-medium"> Conectado</span>
       </div>
 
-      {/* MÃ©tricas */}
+      {/* Métricas */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
           { label: "Sprint actual", value: `${DEMO_TASKS.done.length}/${allTasks.length}`, sub: "tareas completadas" },
@@ -53,8 +53,8 @@ export default function DemoDashboard() {
       {/* Burndown + Actividad */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="md:col-span-2 bg-[var(--card)] rounded-xl p-5 border border-[var(--border)]">
-          <h2 className="text-base font-semibold text-[var(--foreground)] mb-1">Burn-down del sprint <span className="text-xs text-[var(--muted-foreground)] ml-2">Â· Sprint 2</span></h2>
-          <p className="text-xs text-[var(--muted-foreground)] mb-4">Story Points restantes Â· ideal vs real</p>
+          <h2 className="text-base font-semibold text-[var(--foreground)] mb-1">Burn-down del sprint <span className="text-xs text-[var(--muted-foreground)] ml-2">Sprint 2</span></h2>
+          <p className="text-xs text-[var(--muted-foreground)] mb-4">Story Points restantes, ideal vs real</p>
           <ResponsiveContainer width="100%" height={220}>
             <AreaChart data={DEMO_BURNDOWN}>
               <defs>
@@ -105,7 +105,7 @@ export default function DemoDashboard() {
               <div key={task.id} className="flex items-center justify-between px-4 py-3 rounded-lg border border-[var(--border)]">
                 <div className="flex items-center gap-3">
                   <span className={`w-5 h-5 rounded-full border-2 flex items-center justify-center text-xs ${status === "done" ? "border-[var(--primary)] bg-[var(--primary)] text-[var(--primary-foreground)]" : "border-[var(--border)]"}`}>
-                    {status === "done" && "âœ“"}
+                    {status === "done" && "✓"}
                   </span>
                   <span className={`text-sm ${status === "done" ? "line-through text-[var(--muted-foreground)]" : "text-[var(--foreground)]"}`}>{task.title}</span>
                 </div>

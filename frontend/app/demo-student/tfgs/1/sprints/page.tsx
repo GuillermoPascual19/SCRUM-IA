@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import Link from "next/link";
+import { Calendar } from "lucide-react";
 import { DEMO_SPRINTS } from "../../../data";
 
 const statusStyle: Record<string, string> = {
@@ -21,7 +22,7 @@ export default function DemoSprintsPage() {
       <div>
         <p className="text-xs font-semibold text-[var(--primary)] uppercase tracking-wider mb-1">Sprints</p>
         <h1 className="text-2xl font-bold text-[var(--foreground)]">Sprints del TFG</h1>
-        <p className="text-sm text-[var(--muted-foreground)] mt-1">{DEMO_SPRINTS.length} sprints Â· 1 activo</p>
+        <p className="text-sm text-[var(--muted-foreground)] mt-1">{DEMO_SPRINTS.length} sprints · 1 activo</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
@@ -51,7 +52,7 @@ export default function DemoSprintsPage() {
                 </div>
                 <p className="text-sm text-[var(--muted-foreground)]">{sprint.goal}</p>
                 <div className="mt-3 flex items-center gap-4 text-xs text-[var(--muted-foreground)]">
-                  <span>ðŸ“… {sprint.startDate} â†’ {sprint.endDate}</span>
+                  <span className="flex items-center gap-1"><Calendar className="w-4 h-4" /> {sprint.startDate} → {sprint.endDate}</span>
                   <span>{sprint.done}/{sprint.tasks} tareas</span>
                 </div>
               </div>
