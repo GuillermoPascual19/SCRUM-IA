@@ -23,3 +23,7 @@ export function getTfgReportsByTfgId(tfgId: number) {
     orderBy: { createdAt: "desc" },
   });
 }
+
+export function deleteTfgReportById(reportId: number, tfgId: number) {
+  return prisma.tfgReport.delete({ where: { id: reportId, tfgId } });
+}

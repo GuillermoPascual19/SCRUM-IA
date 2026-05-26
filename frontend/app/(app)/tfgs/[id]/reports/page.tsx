@@ -85,6 +85,7 @@ export default function InformesPage() {
   const [generating, setGenerating] = useState(false);
   const [activeReport, setActiveReport] = useState<TfgReport | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   useEffect(() => {
     async function fetchData() {
@@ -106,6 +107,22 @@ export default function InformesPage() {
     }
     fetchData();
   }, [id]);
+
+  async function handleDeleteReport(reportId: number) {
+    setDeletingId(reportId);
+    try {
+      await api.delete(`/tfgs/${id}/evaluations/reports/${reportId}`);
+      setReports((prev) => {
+        const next = prev.filter((r) => r.id !== reportId);
+        if (activeReport?.id === reportId) setActiveReport(next[0] ?? null);
+        return next;
+      });
+    } catch {
+      setError("Error al eliminar el informe.");
+    } finally {
+      setDeletingId(null);
+    }
+  }
 
   async function handleGenerateSummary() {
     setGenerating(true);
@@ -271,24 +288,36 @@ export default function InformesPage() {
               Historial ({reports.length})
             </p>
             {reports.map((r) => (
-              <button
+              <div
                 key={r.id}
-                onClick={() => setActiveReport(r)}
-                className={`w-full text-left p-3 rounded-lg border transition-colors ${
+                className={`relative group rounded-lg border transition-colors ${
                   activeReport?.id === r.id
                     ? "border-[var(--primary)] bg-[var(--primary)]/10"
                     : "border-[var(--border)] bg-[var(--card)] hover:bg-[var(--accent)]/30"
                 }`}
               >
-                <p className="text-xs font-medium text-[var(--foreground)]">{formatDate(r.createdAt)}</p>
-                <p className="text-xs text-[var(--muted-foreground)] mt-0.5">{r.professor.name}</p>
-                {r.customPrompt && (
-                  <p className="text-xs text-[var(--primary)]/70 mt-1 truncate italic">"{r.customPrompt}"</p>
-                )}
-                <p className="text-xs text-[var(--muted-foreground)] mt-1 line-clamp-2 leading-relaxed opacity-70">
-                  {r.content.slice(0, 90)}…
-                </p>
-              </button>
+                <button
+                  onClick={() => setActiveReport(r)}
+                  className="w-full text-left p-3"
+                >
+                  <p className="text-xs font-medium text-[var(--foreground)]">{formatDate(r.createdAt)}</p>
+                  <p className="text-xs text-[var(--muted-foreground)] mt-0.5">{r.professor.name}</p>
+                  {r.customPrompt && (
+                    <p className="text-xs text-[var(--primary)]/70 mt-1 truncate italic">"{r.customPrompt}"</p>
+                  )}
+                  <p className="text-xs text-[var(--muted-foreground)] mt-1 line-clamp-2 leading-relaxed opacity-70">
+                    {r.content.slice(0, 90)}…
+                  </p>
+                </button>
+                <button
+                  onClick={() => handleDeleteReport(r.id)}
+                  disabled={deletingId === r.id}
+                  className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded text-[var(--muted-foreground)] hover:text-red-400 hover:bg-red-500/10 disabled:opacity-30"
+                  title="Eliminar informe"
+                >
+                  {deletingId === r.id ? "…" : "✕"}
+                </button>
+              </div>
             ))}
           </div>
 

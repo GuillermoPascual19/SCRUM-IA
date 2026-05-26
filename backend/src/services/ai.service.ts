@@ -326,6 +326,11 @@ export async function getTfgReports(tfgId: number) {
   return getTfgReportsByTfgId(tfgId);
 }
 
+export async function deleteTfgReport(reportId: number, tfgId: number) {
+  const { deleteTfgReportById } = await import("../repositories/tfgReport.repository");
+  return deleteTfgReportById(reportId, tfgId);
+}
+
 export async function generateTfgSummary(tfgId: number, professorId: number, customPrompt?: string) {
   const [tfg, evaluations, finalGrades, members] = await Promise.all([
     prisma.tfg.findUnique({

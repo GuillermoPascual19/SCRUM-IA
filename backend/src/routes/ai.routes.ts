@@ -9,6 +9,7 @@ import {
   retroInsights,
   tfgSummary,
   getReports,
+  deleteReport,
 } from "../controllers/ai.controller";
 import { authenticate, requireRole } from "../middleware/auth";
 
@@ -24,5 +25,6 @@ router.put("/final/:id", authenticate, requireRole("teacher", "coordinator", "ad
 router.get("/retro-insights/:sprintId", authenticate, retroInsights);
 router.post("/tfg-summary", authenticate, requireRole("teacher", "coordinator", "admin"), tfgSummary);
 router.get("/reports", authenticate, requireRole("teacher", "coordinator", "admin"), getReports);
+router.delete("/reports/:reportId", authenticate, requireRole("teacher", "coordinator", "admin"), deleteReport);
 
 export default router;

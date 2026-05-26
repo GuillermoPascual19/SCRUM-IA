@@ -10,6 +10,7 @@ import {
   generateRetroInsights,
   generateTfgSummary,
   getTfgReports,
+  deleteTfgReport,
 } from "../services/ai.service";
 
 export async function generate(req: AuthRequest, res: Response) {
@@ -138,6 +139,15 @@ export async function getReports(req: AuthRequest, res: Response) {
   try {
     const reports = await getTfgReports(Number(req.params.tfgId));
     res.json(reports);
+  } catch {
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+}
+
+export async function deleteReport(req: AuthRequest, res: Response) {
+  try {
+    await deleteTfgReport(Number(req.params.reportId), Number(req.params.tfgId));
+    res.json({ message: "Informe eliminado" });
   } catch {
     res.status(500).json({ error: "Error interno del servidor" });
   }
