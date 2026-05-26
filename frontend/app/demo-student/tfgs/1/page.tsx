@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { DEMO_TFG, DEMO_SPRINTS, DEMO_COMMITS } from "../../data";
@@ -11,18 +11,18 @@ export default function DemoTfgPage() {
         <div>
           <p className="text-xs font-semibold text-[var(--primary)] uppercase tracking-wider mb-1">TFG</p>
           <h1 className="text-2xl font-bold text-[var(--foreground)]">{DEMO_TFG.title}</h1>
-          <p className="text-sm text-[var(--muted-foreground)] mt-1">{DEMO_TFG.academicYear} · {DEMO_TFG.members.length} miembros</p>
+          <p className="text-sm text-[var(--muted-foreground)] mt-1">{DEMO_TFG.academicYear} Â· {DEMO_TFG.members.length} miembros</p>
         </div>
         <span className="text-xs px-3 py-1.5 rounded-full bg-green-500/20 text-green-400 font-medium border border-green-500/30">Activo</span>
       </div>
 
-      {/* Descripción */}
+      {/* DescripciÃ³n */}
       <div className="bg-[var(--card)] rounded-xl p-5 border border-[var(--border)]">
-        <h2 className="text-sm font-semibold text-[var(--foreground)] mb-2">Descripción del proyecto</h2>
+        <h2 className="text-sm font-semibold text-[var(--foreground)] mb-2">DescripciÃ³n del proyecto</h2>
         <p className="text-sm text-[var(--muted-foreground)] leading-relaxed">{DEMO_TFG.description}</p>
         <div className="mt-4 flex items-center gap-4 text-xs text-[var(--muted-foreground)]">
-          <span>⎇ <a href={DEMO_TFG.repositoryUrl} className="text-[var(--primary)] hover:underline">Repositorio GitHub</a></span>
-          <span>📅 {DEMO_TFG.academicYear}</span>
+          <span>âŽ‡ <a href={DEMO_TFG.repositoryUrl} className="text-[var(--primary)] hover:underline">Repositorio GitHub</a></span>
+          <span>ðŸ“… {DEMO_TFG.academicYear}</span>
         </div>
       </div>
 
@@ -31,14 +31,14 @@ export default function DemoTfgPage() {
         <div className="bg-[var(--card)] rounded-xl p-5 border border-[var(--primary)]/30">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-sm font-semibold text-[var(--foreground)] flex items-center gap-2">
-              <span className="text-[var(--primary)]">◉</span> Sprint activo
+              <span className="text-[var(--primary)]">â—‰</span> Sprint activo
             </h2>
-            <Link href="/demo/tfgs/1/sprints/1" className="text-xs text-[var(--primary)] hover:underline">Ver detalles →</Link>
+            <Link href="/demo-student/tfgs/1/sprints/1" className="text-xs text-[var(--primary)] hover:underline">Ver detalles â†’</Link>
           </div>
           <p className="text-base font-bold text-[var(--foreground)]">{activeSprint.name}</p>
           <p className="text-sm text-[var(--muted-foreground)] mt-1">{activeSprint.goal}</p>
           <div className="mt-3 flex items-center gap-4 text-xs text-[var(--muted-foreground)]">
-            <span>{activeSprint.startDate} → {activeSprint.endDate}</span>
+            <span>{activeSprint.startDate} â†’ {activeSprint.endDate}</span>
             <span className="text-[var(--primary)] font-medium">{activeSprint.done}/{activeSprint.tasks} tareas completadas</span>
           </div>
           <div className="mt-3 w-full bg-[var(--border)] rounded-full h-1.5">
@@ -65,7 +65,7 @@ export default function DemoTfgPage() {
         </div>
       </div>
 
-      {/* Últimos commits */}
+      {/* Ãšltimos commits */}
       <div className="bg-[var(--card)] rounded-xl p-5 border border-[var(--border)]">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-sm font-semibold text-[var(--foreground)]">Commits recientes</h2>
@@ -79,7 +79,7 @@ export default function DemoTfgPage() {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-[var(--foreground)] truncate">{c.message}</p>
-                <p className="text-xs text-[var(--muted-foreground)]">{c.author} · {c.date} · <span className="text-green-400">+{c.linesAdded}</span> <span className="text-red-400">-{c.linesDeleted}</span></p>
+                <p className="text-xs text-[var(--muted-foreground)]">{c.author} Â· {c.date} Â· <span className="text-green-400">+{c.linesAdded}</span> <span className="text-red-400">-{c.linesDeleted}</span></p>
               </div>
               <code className="text-xs text-[var(--muted-foreground)] font-mono">{c.hash}</code>
             </div>
@@ -89,3 +89,4 @@ export default function DemoTfgPage() {
     </div>
   );
 }
+

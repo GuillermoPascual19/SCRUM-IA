@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { DEMO_EVALUATIONS } from "../../../data";
 
@@ -8,7 +8,7 @@ export default function DemoGradesPage() {
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-xs font-semibold text-[var(--primary)] uppercase tracking-wider mb-1">Evaluación IA</p>
+        <p className="text-xs font-semibold text-[var(--primary)] uppercase tracking-wider mb-1">EvaluaciÃ³n IA</p>
         <h1 className="text-2xl font-bold text-[var(--foreground)]">Mis evaluaciones</h1>
         <p className="text-sm text-[var(--muted-foreground)] mt-1">Notas generadas por IA y revisadas por el profesor.</p>
       </div>
@@ -46,14 +46,14 @@ export default function DemoGradesPage() {
         </div>
       </div>
 
-      {/* Detalle de la evaluación */}
+      {/* Detalle de la evaluaciÃ³n */}
       <div className="bg-[var(--card)] rounded-xl border border-[var(--primary)]/30 p-5 space-y-5">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-sm font-semibold text-[var(--foreground)] flex items-center gap-2">
-              <span className="text-[var(--primary)]">✦</span> Evaluación IA — {ev.sprint}
+              <span className="text-[var(--primary)]">âœ¦</span> EvaluaciÃ³n IA â€” {ev.sprint}
             </h2>
-            <p className="text-xs text-[var(--muted-foreground)] mt-0.5">Generada por IA · Revisada por el profesor</p>
+            <p className="text-xs text-[var(--muted-foreground)] mt-0.5">Generada por IA Â· Revisada por el profesor</p>
           </div>
           <span className="text-3xl font-bold text-[var(--primary)]">{ev.finalScore}<span className="text-base font-normal text-[var(--muted-foreground)]">/10</span></span>
         </div>
@@ -69,17 +69,17 @@ export default function DemoGradesPage() {
             <ul className="space-y-1.5">
               {ev.strengths.map((s, i) => (
                 <li key={i} className="text-sm text-[var(--foreground)] flex gap-2">
-                  <span className="text-green-400 shrink-0">✓</span> {s}
+                  <span className="text-green-400 shrink-0">âœ“</span> {s}
                 </li>
               ))}
             </ul>
           </div>
           <div className="bg-yellow-500/5 border border-yellow-500/20 rounded-lg p-4">
-            <p className="text-xs font-medium text-yellow-400 uppercase tracking-wide mb-2">Áreas de mejora</p>
+            <p className="text-xs font-medium text-yellow-400 uppercase tracking-wide mb-2">Ãreas de mejora</p>
             <ul className="space-y-1.5">
               {ev.improvements.map((s, i) => (
                 <li key={i} className="text-sm text-[var(--foreground)] flex gap-2">
-                  <span className="text-yellow-400 shrink-0">△</span> {s}
+                  <span className="text-yellow-400 shrink-0">â–³</span> {s}
                 </li>
               ))}
             </ul>
@@ -100,3 +100,4 @@ export default function DemoGradesPage() {
     </div>
   );
 }
+

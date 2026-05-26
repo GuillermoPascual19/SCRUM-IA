@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { DEMO_SPRINTS, DEMO_TASKS, DEMO_COMMITS } from "../../../../data";
@@ -16,7 +16,7 @@ export default function DemoSprintDetailPage() {
           <p className="text-sm text-[var(--muted-foreground)] mt-1">{sprint.goal}</p>
         </div>
         <div className="flex gap-2">
-          <Link href="/demo/tfgs/1/sprints/1/retrospective"
+          <Link href="/demo-student/tfgs/1/sprints/1/retrospective"
             className="px-4 py-2 rounded-lg border border-[var(--border)] text-sm font-medium text-[var(--foreground)] hover:bg-[var(--accent)] transition-colors">
             Retrospectiva
           </Link>
@@ -81,7 +81,7 @@ export default function DemoSprintDetailPage() {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm text-[var(--foreground)] truncate">{c.message}</p>
-                <p className="text-xs text-[var(--muted-foreground)]">{c.author} · {c.date}</p>
+                <p className="text-xs text-[var(--muted-foreground)]">{c.author} Â· {c.date}</p>
               </div>
               <div className="text-xs shrink-0 flex gap-2">
                 <span className="text-green-400">+{c.linesAdded}</span>
@@ -94,3 +94,4 @@ export default function DemoSprintDetailPage() {
     </div>
   );
 }
+

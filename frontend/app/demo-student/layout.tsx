@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -6,11 +6,11 @@ import { LayoutDashboard, Zap, CalendarDays, List, Sparkles, FolderKanban, Arrow
 import { DEMO_USER, DEMO_TFG } from "./data";
 
 const tfgNav = [
-  { name: "Resumen", href: "/demo/tfgs/1", icon: <LayoutDashboard size={16} />, exact: true },
-  { name: "Sprints", href: "/demo/tfgs/1/sprints", icon: <Zap size={16} /> },
-  { name: "Planificación", href: "/demo/tfgs/1/planner", icon: <CalendarDays size={16} /> },
-  { name: "Backlog", href: "/demo/tfgs/1/backlog", icon: <List size={16} /> },
-  { name: "Evaluación IA", href: "/demo/tfgs/1/grades", icon: <Sparkles size={16} /> },
+  { name: "Resumen", href: "/demo-student/tfgs/1", icon: <LayoutDashboard size={16} />, exact: true },
+  { name: "Sprints", href: "/demo-student/tfgs/1/sprints", icon: <Zap size={16} /> },
+  { name: "PlanificaciÃ³n", href: "/demo-student/tfgs/1/planner", icon: <CalendarDays size={16} /> },
+  { name: "Backlog", href: "/demo-student/tfgs/1/backlog", icon: <List size={16} /> },
+  { name: "EvaluaciÃ³n IA", href: "/demo-student/tfgs/1/grades", icon: <Sparkles size={16} /> },
 ];
 
 export default function DemoLayout({ children }: { children: React.ReactNode }) {
@@ -39,12 +39,12 @@ export default function DemoLayout({ children }: { children: React.ReactNode }) 
           <div>
             <p className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider px-3 mb-2">Plataforma</p>
             <div className="space-y-1">
-              <Link href="/demo/dashboard"
-                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${pathname === "/demo/dashboard" ? "bg-[var(--primary)] text-[var(--primary-foreground)]" : "text-[var(--foreground)] hover:bg-[var(--accent)]"}`}>
+              <Link href="/demo-student/dashboard"
+                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${pathname === "/demo-student/dashboard" ? "bg-[var(--primary)] text-[var(--primary-foreground)]" : "text-[var(--foreground)] hover:bg-[var(--accent)]"}`}>
                 <LayoutDashboard size={16} /> Dashboard
               </Link>
-              <Link href="/demo/tfgs"
-                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${pathname === "/demo/tfgs" ? "bg-[var(--primary)] text-[var(--primary-foreground)]" : "text-[var(--foreground)] hover:bg-[var(--accent)]"}`}>
+              <Link href="/demo-student/tfgs"
+                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${pathname === "/demo-student/tfgs" ? "bg-[var(--primary)] text-[var(--primary-foreground)]" : "text-[var(--foreground)] hover:bg-[var(--accent)]"}`}>
                 <List size={16} /> Mis TFGs
               </Link>
             </div>
@@ -85,10 +85,11 @@ export default function DemoLayout({ children }: { children: React.ReactNode }) 
       <main className="flex-1 overflow-y-auto p-6 relative z-10">
         {/* Banner demo */}
         <div className="mb-4 flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--primary)]/10 border border-[var(--primary)]/30 text-xs text-[var(--primary)] font-medium">
-          <Sparkles size={13} /> Vista demo — datos de ejemplo · <Link href="/" className="underline underline-offset-2">Regístrate para usar la plataforma real</Link>
+          <Sparkles size={13} /> Vista demo â€” datos de ejemplo Â· <Link href="/" className="underline underline-offset-2">RegÃ­strate para usar la plataforma real</Link>
         </div>
         {children}
       </main>
     </div>
   );
 }
+

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { DEMO_SPRINTS } from "../../../data";
@@ -21,7 +21,7 @@ export default function DemoSprintsPage() {
       <div>
         <p className="text-xs font-semibold text-[var(--primary)] uppercase tracking-wider mb-1">Sprints</p>
         <h1 className="text-2xl font-bold text-[var(--foreground)]">Sprints del TFG</h1>
-        <p className="text-sm text-[var(--muted-foreground)] mt-1">{DEMO_SPRINTS.length} sprints · 1 activo</p>
+        <p className="text-sm text-[var(--muted-foreground)] mt-1">{DEMO_SPRINTS.length} sprints Â· 1 activo</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
@@ -39,7 +39,7 @@ export default function DemoSprintsPage() {
 
       <div className="space-y-3">
         {DEMO_SPRINTS.map((sprint) => (
-          <Link key={sprint.id} href={sprint.id === 1 ? "/demo/tfgs/1/sprints/1" : "#"}
+          <Link key={sprint.id} href={sprint.id === 1 ? "/demo-student/tfgs/1/sprints/1" : "#"}
             className="block bg-[var(--card)] rounded-xl border border-[var(--border)] hover:border-[var(--primary)] transition-colors p-5">
             <div className="flex items-start justify-between">
               <div className="flex-1">
@@ -51,7 +51,7 @@ export default function DemoSprintsPage() {
                 </div>
                 <p className="text-sm text-[var(--muted-foreground)]">{sprint.goal}</p>
                 <div className="mt-3 flex items-center gap-4 text-xs text-[var(--muted-foreground)]">
-                  <span>📅 {sprint.startDate} → {sprint.endDate}</span>
+                  <span>ðŸ“… {sprint.startDate} â†’ {sprint.endDate}</span>
                   <span>{sprint.done}/{sprint.tasks} tareas</span>
                 </div>
               </div>
@@ -71,3 +71,4 @@ export default function DemoSprintsPage() {
     </div>
   );
 }
+

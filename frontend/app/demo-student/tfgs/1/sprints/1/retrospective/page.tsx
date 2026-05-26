@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { DEMO_RETRO } from "../../../../../data";
 
@@ -14,16 +14,16 @@ export default function DemoRetrospectivePage() {
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-xs font-semibold text-[var(--primary)] uppercase tracking-wider mb-1">Sprint 2 · Retrospectiva</p>
+        <p className="text-xs font-semibold text-[var(--primary)] uppercase tracking-wider mb-1">Sprint 2 Â· Retrospectiva</p>
         <h1 className="text-2xl font-bold text-[var(--foreground)]">Retrospectiva del sprint</h1>
-        <p className="text-sm text-[var(--muted-foreground)] mt-1">Reflexión del equipo al cierre del Sprint 2.</p>
+        <p className="text-sm text-[var(--muted-foreground)] mt-1">ReflexiÃ³n del equipo al cierre del Sprint 2.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Fue bien */}
         <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] overflow-hidden">
           <div className="px-4 py-3 border-b border-[var(--border)] bg-green-500/5">
-            <h2 className="text-sm font-semibold text-green-400">✓ Fue bien</h2>
+            <h2 className="text-sm font-semibold text-green-400">âœ“ Fue bien</h2>
           </div>
           <div className="p-3 space-y-2">
             {wentWell.map(n => (
@@ -37,7 +37,7 @@ export default function DemoRetrospectivePage() {
         {/* A mejorar */}
         <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] overflow-hidden">
           <div className="px-4 py-3 border-b border-[var(--border)] bg-yellow-500/5">
-            <h2 className="text-sm font-semibold text-yellow-400">△ A mejorar</h2>
+            <h2 className="text-sm font-semibold text-yellow-400">â–³ A mejorar</h2>
           </div>
           <div className="p-3 space-y-2">
             {toImprove.map(n => (
@@ -51,7 +51,7 @@ export default function DemoRetrospectivePage() {
         {/* Acciones */}
         <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] overflow-hidden">
           <div className="px-4 py-3 border-b border-[var(--border)] bg-[var(--primary)]/5">
-            <h2 className="text-sm font-semibold text-[var(--primary)]">→ Acciones</h2>
+            <h2 className="text-sm font-semibold text-[var(--primary)]">â†’ Acciones</h2>
           </div>
           <div className="p-3 space-y-2">
             {actions.map(n => (
@@ -65,3 +65,4 @@ export default function DemoRetrospectivePage() {
     </div>
   );
 }
+
