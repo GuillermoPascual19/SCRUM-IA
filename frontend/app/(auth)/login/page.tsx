@@ -19,7 +19,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const { data } = await api.post("/auth/login", form);
-      setAuth(data.user, data.token);
+      setAuth(data.user, data.token, data.refreshToken);
       router.push("/dashboard");
     } catch (e: any) {
       if (e.response?.data?.error === "ACCOUNT_NOT_ACTIVATED") {
