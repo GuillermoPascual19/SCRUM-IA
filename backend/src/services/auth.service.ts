@@ -34,6 +34,16 @@ export async function registerUser(name: string, email: string, password: string
   return { id: user.id, name: user.name, email: user.email, role: user.role };
 }
 
+function generateTokens(user: { id: number; email: string; role: string }) {
+  const token = jwt.sign(
+    { id: user.id, email: user.email, role: user.role },
+    process.env.JWT_SECRET!,
+    { expiresIn: "15m" }
+  );
+  const refreshToken = crypto.randomBytes(64).toString("hex");
+  return { token, refreshToken };
+}
+
 export async function loginUser(email: string, password: string) {
   const user = await findUserByEmail(email);
   if (!user) throw new Error("INVALID_CREDENTIALS");
@@ -43,13 +53,36 @@ export async function loginUser(email: string, password: string) {
 
   if (!user.isActive) throw new Error("ACCOUNT_NOT_ACTIVATED");
 
-  const token = jwt.sign(
-    { id: user.id, email: user.email, role: user.role },
-    process.env.JWT_SECRET!,
-    { expiresIn: "7d" }
-  );
+  const { token, refreshToken } = generateTokens(user);
 
-  return { token, user: { id: user.id, name: user.name, email: user.email, role: user.role } };
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { refreshToken },
+  });
+
+  return {
+    token,
+    refreshToken,
+    user: { id: user.id, name: user.name, email: user.email, role: user.role },
+  };
+}
+
+export async function rotateRefreshToken(incomingToken: string) {
+  const user = await prisma.user.findFirst({
+    where: { refreshToken: incomingToken },
+    select: { id: true, email: true, role: true, isActive: true },
+  });
+
+  if (!user || !user.isActive) throw new Error("INVALID_TOKEN");
+
+  const { token, refreshToken } = generateTokens(user);
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { refreshToken },
+  });
+
+  return { token, refreshToken };
 }
 
 export async function getMe(id: number) {

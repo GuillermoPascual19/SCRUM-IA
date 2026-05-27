@@ -3,7 +3,7 @@ import { AuthRequest } from "../middleware/auth";
 import {
   registerUser, loginUser, getMe,
   activateAccount, requestPasswordReset, resetPassword,
-  updateProfile, changePassword,
+  updateProfile, changePassword, rotateRefreshToken,
 } from "../services/auth.service";
 
 export async function register(req: Request, res: Response) {
@@ -57,6 +57,12 @@ export async function changePasswordController(req: AuthRequest, res: Response) 
   }
   await changePassword(req.user!.id, currentPassword, newPassword);
   res.json({ message: "Contraseña actualizada correctamente" });
+}
+
+export async function refresh(req: Request, res: Response) {
+  const { refreshToken } = req.body;
+  const tokens = await rotateRefreshToken(refreshToken);
+  res.json(tokens);
 }
 
 export async function resetPasswordController(req: Request, res: Response) {

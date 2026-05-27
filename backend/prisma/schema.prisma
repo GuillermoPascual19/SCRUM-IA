@@ -22,6 +22,7 @@ model User {
   activationTokenExpires DateTime? @map("activation_token_expires")
   resetPasswordToken        String?   @db.VarChar(255) @map("reset_password_token")
   resetPasswordTokenExpires DateTime? @map("reset_password_token_expires")
+  refreshToken              String?   @db.Text @map("refresh_token")
 
   createdAt DateTime @default(now()) @map("created_at")
   githubToken String? @db.VarChar(255) @map("github_token")
