@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth.store";
 import Sidebar from "@/components/layout/Sidebar";
+import { motion } from "framer-motion";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuthStore();
@@ -35,7 +36,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       />
       <Sidebar />
       <main className="flex-1 overflow-y-auto p-6 relative z-10">
-        {children}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.25, ease: "easeOut" }}
+        >
+          {children}
+        </motion.div>
       </main>
     </div>
   );
