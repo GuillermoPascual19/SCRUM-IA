@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import api from "@/lib/axios";
+import { useAuthStore } from "@/store/auth.store";
 
 interface Commit {
   id: number;
@@ -29,11 +30,31 @@ function formatDate(iso: string) {
 
 export default function CommitsPage() {
   const { id } = useParams();
+  const { user } = useAuthStore();
   const [commits, setCommits] = useState<Commit[]>([]);
   const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
+  const [syncMsg, setSyncMsg] = useState("");
   const [search, setSearch] = useState("");
   const [authorFilter, setAuthorFilter] = useState("todos");
   const [sprintFilter, setSprintFilter] = useState("todos");
+
+  const canSync = user?.role === "teacher" || user?.role === "coordinator" || user?.role === "admin";
+
+  async function handleSync() {
+    setSyncing(true);
+    setSyncMsg("");
+    try {
+      const { data } = await api.post(`/tfgs/${id}/github/sync`);
+      setSyncMsg(`✓ ${data.synced ?? 0} commits sincronizados`);
+      const { data: fresh } = await api.get(`/tfgs/${id}/github/commits`);
+      setCommits(fresh);
+    } catch (e: any) {
+      setSyncMsg(e.response?.data?.error || "Error al sincronizar");
+    } finally {
+      setSyncing(false);
+    }
+  }
 
   useEffect(() => {
     api.get(`/tfgs/${id}/github/commits`)
@@ -65,12 +86,34 @@ export default function CommitsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <p className="text-xs font-semibold text-[var(--primary)] uppercase tracking-wider mb-1">Repositorio</p>
-        <h1 className="text-2xl font-bold text-[var(--foreground)]">Historial de commits</h1>
-        <p className="text-sm text-[var(--muted-foreground)] mt-1">
-          Actividad de desarrollo sincronizada desde GitHub.
-        </p>
+      <div className="flex items-start justify-between">
+        <div>
+          <p className="text-xs font-semibold text-[var(--primary)] uppercase tracking-wider mb-1">Repositorio</p>
+          <h1 className="text-2xl font-bold text-[var(--foreground)]">Historial de commits</h1>
+          <p className="text-sm text-[var(--muted-foreground)] mt-1">
+            Actividad de desarrollo sincronizada desde GitHub.
+          </p>
+        </div>
+        {canSync && (
+          <div className="flex flex-col items-end gap-1">
+            <button
+              onClick={handleSync}
+              disabled={syncing}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--primary)] text-[var(--primary-foreground)] text-sm font-medium hover:opacity-90 disabled:opacity-50 transition-opacity"
+            >
+              {syncing ? (
+                <><span className="animate-spin">↻</span> Sincronizando...</>
+              ) : (
+                <>↻ Sincronizar GitHub</>
+              )}
+            </button>
+            {syncMsg && (
+              <p className={`text-xs ${syncMsg.startsWith("✓") ? "text-green-400" : "text-red-400"}`}>
+                {syncMsg}
+              </p>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Stats */}
