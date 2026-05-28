@@ -13,6 +13,9 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { motion } from "framer-motion";
+import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
+import { StatCardSkeleton, Skeleton } from "@/components/ui/Skeleton";
 
 export default function DashboardPage() {
   const { user } = useAuthStore();
@@ -157,32 +160,38 @@ export default function DashboardPage() {
         )}
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-[var(--card)] rounded-xl p-5 border border-[var(--border)]">
-          <p className="text-xs text-[var(--muted-foreground)] uppercase tracking-wide">Sprint actual</p>
-          <p className="text-3xl font-bold text-[var(--foreground)] mt-2">
-            {doneTasks.length}/{tasks.length}
-          </p>
-          <p className="text-xs text-[var(--muted-foreground)] mt-1">tareas completadas</p>
+      {loading ? (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => <StatCardSkeleton key={i} />)}
         </div>
-        <div className="bg-[var(--card)] rounded-xl p-5 border border-[var(--border)]">
-          <p className="text-xs text-[var(--muted-foreground)] uppercase tracking-wide">En progreso</p>
-          <p className="text-3xl font-bold text-[var(--primary)] mt-2">{inProgressTasks.length}</p>
-          <p className="text-xs text-[var(--muted-foreground)] mt-1">tareas activas</p>
-        </div>
-        <div className="bg-[var(--card)] rounded-xl p-5 border border-[var(--border)]">
-          <p className="text-xs text-[var(--muted-foreground)] uppercase tracking-wide">TFGs activos</p>
-          <p className="text-3xl font-bold text-[var(--foreground)] mt-2">
-            {tfgs.filter((t) => t.status === "activo").length}
-          </p>
-          <p className="text-xs text-[var(--muted-foreground)] mt-1">proyectos</p>
-        </div>
-        <div className="bg-[var(--card)] rounded-xl p-5 border border-[var(--border)]">
-          <p className="text-xs text-[var(--muted-foreground)] uppercase tracking-wide">Commits</p>
-          <p className="text-3xl font-bold text-[var(--foreground)] mt-2">{recentCommits.length}</p>
-          <p className="text-xs text-[var(--muted-foreground)] mt-1">sincronizados</p>
-        </div>
-      </div>
+      ) : (
+        <motion.div
+          className="grid grid-cols-2 md:grid-cols-4 gap-4"
+          initial="hidden"
+          animate="show"
+          variants={{ hidden: {}, show: { transition: { staggerChildren: 0.08 } } }}
+        >
+          {[
+            { label: "Sprint actual", value: doneTasks.length, suffix: `/${tasks.length}`, sub: "tareas completadas", color: "text-[var(--foreground)]" },
+            { label: "En progreso", value: inProgressTasks.length, sub: "tareas activas", color: "text-[var(--primary)]" },
+            { label: "TFGs activos", value: tfgs.filter((t) => t.status === "activo").length, sub: "proyectos", color: "text-[var(--foreground)]" },
+            { label: "Commits", value: recentCommits.length, sub: "sincronizados", color: "text-[var(--foreground)]" },
+          ].map((stat) => (
+            <motion.div
+              key={stat.label}
+              variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: "easeOut" } } }}
+              className="bg-[var(--card)] rounded-xl p-5 border border-[var(--border)]"
+            >
+              <p className="text-xs text-[var(--muted-foreground)] uppercase tracking-wide">{stat.label}</p>
+              <p className={`text-3xl font-bold mt-2 ${stat.color}`}>
+                <AnimatedNumber value={stat.value} />
+                {stat.suffix && <span className="text-xl text-[var(--muted-foreground)]">{stat.suffix}</span>}
+              </p>
+              <p className="text-xs text-[var(--muted-foreground)] mt-1">{stat.sub}</p>
+            </motion.div>
+          ))}
+        </motion.div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="md:col-span-2 bg-[var(--card)] rounded-xl p-5 border border-[var(--border)]">
@@ -238,12 +247,33 @@ export default function DashboardPage() {
 
         <div className="bg-[var(--card)] rounded-xl p-5 border border-[var(--border)]">
           <h2 className="text-base font-semibold text-[var(--foreground)] mb-4">Actividad reciente</h2>
-          {recentCommits.length === 0 ? (
+          {loading ? (
+            <div className="space-y-4">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="flex items-start gap-3">
+                  <Skeleton className="w-8 h-8 rounded-full shrink-0" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-3 w-24" />
+                    <Skeleton className="h-3 w-full" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : recentCommits.length === 0 ? (
             <p className="text-sm text-[var(--muted-foreground)] text-center py-4">Sin actividad reciente</p>
           ) : (
-            <div className="space-y-4">
+            <motion.div
+              className="space-y-4"
+              initial="hidden"
+              animate="show"
+              variants={{ hidden: {}, show: { transition: { staggerChildren: 0.07, delayChildren: 0.2 } } }}
+            >
               {recentCommits.map((commit: any, i: number) => (
-                <div key={i} className="flex items-start gap-3">
+                <motion.div
+                  key={i}
+                  variants={{ hidden: { opacity: 0, x: -10 }, show: { opacity: 1, x: 0, transition: { duration: 0.25 } } }}
+                  className="flex items-start gap-3"
+                >
                   <div className="w-8 h-8 rounded-full bg-[var(--primary)] flex items-center justify-center text-[var(--primary-foreground)] text-xs font-bold shrink-0">
                     {commit.student?.name?.charAt(0).toUpperCase() || "?"}
                   </div>
@@ -258,9 +288,9 @@ export default function DashboardPage() {
                   <span className="text-xs text-[var(--muted-foreground)] shrink-0">
                     {new Date(commit.date).toLocaleDateString("es-ES")}
                   </span>
-                </div>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           )}
         </div>
       </div>
