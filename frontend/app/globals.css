@@ -130,3 +130,28 @@ body {
   background-color: var(--background);
   color: var(--foreground);
 }
+
+/* Auth-specific tokens (always dark) */
+:root {
+  --auth-success: #22c55e;
+  --auth-warning: #f59e0b;
+  --auth-destructive: #ef4444;
+}
+
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes draw {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes fade-dot {
+  to { opacity: 1; }
+}
+
+@keyframes shimmer-slide {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(100%); }
+}
