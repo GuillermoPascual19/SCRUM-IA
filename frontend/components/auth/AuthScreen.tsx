@@ -368,34 +368,21 @@ export default function AuthScreen({ mode }: Props) {
             </div>
 
             {/* OAuth row */}
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                className="group relative inline-flex h-11 items-center justify-center gap-2 overflow-hidden rounded-xl border border-[#1f1f1f] bg-[#111] text-sm font-medium text-[#aaa] transition-all hover:border-[#22c55e]/40 hover:text-white"
-              >
-                <GithubIcon />
-                GitHub
-                <span
-                  aria-hidden
-                  className="absolute inset-0 -translate-x-full"
-                  style={{
-                    background: "linear-gradient(90deg,transparent,rgba(34,197,94,0.1),transparent)",
-                    animation: "shimmer-slide 2s infinite",
-                  }}
-                />
-              </button>
-              <button
-                type="button"
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-[#1f1f1f] bg-[#111] text-sm font-medium text-[#444] cursor-not-allowed"
-                disabled
-                title="Próximamente"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                </svg>
-                Passkey
-              </button>
-            </div>
+            <button
+              type="button"
+              className="group relative inline-flex h-11 w-full items-center justify-center gap-2 overflow-hidden rounded-xl border border-[#1f1f1f] bg-[#111] text-sm font-medium text-[#aaa] transition-all hover:border-[#22c55e]/40 hover:text-white"
+            >
+              <GithubIcon />
+              Continuar con GitHub
+              <span
+                aria-hidden
+                className="absolute inset-0 -translate-x-full"
+                style={{
+                  background: "linear-gradient(90deg,transparent,rgba(34,197,94,0.1),transparent)",
+                  animation: "shimmer-slide 2s infinite",
+                }}
+              />
+            </button>
 
             {/* Divider */}
             <div className="my-6 flex items-center gap-3">
