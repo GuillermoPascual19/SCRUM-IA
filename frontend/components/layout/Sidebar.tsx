@@ -10,7 +10,7 @@ import api from "@/lib/axios";
 import { Sprint } from "@/lib/types";
 import {
   LayoutDashboard, Zap, CalendarDays, List, Sparkles, FileText, Globe,
-  GitCommit, ShieldCheck, Menu, X, LogOut, Sun, Moon,
+  GitCommit, ShieldCheck, Menu, X, LogOut, Sun, Moon, ChevronLeft, ChevronRight,
 } from "lucide-react";
 import NotificationBell from "@/components/layout/NotificationBell";
 
@@ -26,8 +26,9 @@ const themeColors: Record<string, string> = {
   orange: "#ea580c",
 };
 
-/** Monospace "// section" label — matches the landing/auth typographic system. */
-function NavLabel({ children }: { children: React.ReactNode }) {
+/** Monospace "// section" label — collapses to a thin divider in rail mode. */
+function NavLabel({ children, collapsed }: { children: React.ReactNode; collapsed: boolean }) {
+  if (collapsed) return <div className="mx-3 mb-2 h-px bg-[var(--border)]/50" />;
   return (
     <p className="mb-2 px-3 font-mono text-[10px] font-medium uppercase tracking-[0.2em] text-[var(--muted-foreground)]">
       <span className="opacity-50">{"// "}</span>{children}
@@ -53,6 +54,7 @@ export default function Sidebar() {
   const { activeTfg } = useTfgStore();
 
   const [open, setOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
   const [activeSprint, setActiveSprint] = useState<Sprint | null>(null);
 
   const tfgIdMatch = pathname.match(/^\/tfgs\/(\d+)/);
@@ -71,6 +73,19 @@ export default function Sidebar() {
 
   /* Close the mobile drawer on navigation */
   useEffect(() => { setOpen(false); }, [pathname]);
+
+  /* Restore the rail/expanded preference (desktop only) */
+  useEffect(() => {
+    setCollapsed(localStorage.getItem("sidebar-collapsed") === "true");
+  }, []);
+
+  function toggleCollapsed() {
+    setCollapsed((prev) => {
+      const next = !prev;
+      localStorage.setItem("sidebar-collapsed", String(next));
+      return next;
+    });
+  }
 
   /* Active sprint for the countdown card — only fetched while inside a TFG */
   useEffect(() => {
@@ -94,16 +109,16 @@ export default function Sidebar() {
 
   function navLink(item: { name: string; href: string; icon: React.ReactNode }, active: boolean) {
     return (
-      <Link key={item.name} href={item.href}
-        className={`group flex items-center gap-3 rounded-xl px-3 py-2 text-[13px] font-medium transition-colors ${
+      <Link key={item.name} href={item.href} title={collapsed ? item.name : undefined}
+        className={`group flex items-center gap-3 rounded-xl px-3 py-2 text-[13px] font-medium transition-colors ${collapsed ? "justify-center px-0" : ""} ${
           active
             ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
             : "text-[var(--foreground)] hover:bg-[var(--accent)]"
         }`}>
-        <span className={active ? "" : "text-[var(--muted-foreground)] transition-colors group-hover:text-[var(--foreground)]"}>
+        <span className={active ? "shrink-0" : "shrink-0 text-[var(--muted-foreground)] transition-colors group-hover:text-[var(--foreground)]"}>
           {item.icon}
         </span>
-        {item.name}
+        {!collapsed && item.name}
       </Link>
     );
   }
@@ -113,7 +128,7 @@ export default function Sidebar() {
       {/* Mobile menu toggle */}
       <button
         onClick={() => setOpen((v) => !v)}
-        className="fixed left-4 top-4 z-50 grid size-10 place-items-center rounded-xl border border-[var(--border)]/50 bg-[var(--background)]/80 text-[var(--foreground)] backdrop-blur-xl transition-colors hover:bg-[var(--accent)] lg:hidden"
+        className="fixed left-4 top-4 z-50 grid size-10 place-items-center rounded-xl border border-[var(--border)]/40 bg-[var(--background)]/50 text-[var(--foreground)] backdrop-blur-2xl backdrop-saturate-150 transition-colors hover:bg-[var(--accent)]/60 lg:hidden"
         aria-label={open ? "Cerrar menú" : "Abrir menú"}
       >
         {open ? <X size={18} /> : <Menu size={18} />}
@@ -124,30 +139,44 @@ export default function Sidebar() {
         <div
           onClick={() => setOpen(false)}
           aria-hidden
-          className="fixed inset-0 z-30 bg-black/50 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-30 bg-black/30 backdrop-blur-sm lg:hidden"
         />
       )}
 
       <aside
-        className={`fixed left-3 top-3 z-40 flex h-[calc(100vh-24px)] w-72 flex-col rounded-2xl border border-[var(--border)]/40 bg-[var(--background)]/95 shadow-2xl backdrop-blur-2xl transition-transform duration-300 ease-out lg:static lg:z-20 lg:my-3 lg:ml-3 lg:w-64 lg:translate-x-0 lg:bg-[var(--background)]/70 lg:shadow-none ${
-          open ? "translate-x-0" : "-translate-x-[calc(100%+12px)]"
-        }`}
+        className={`fixed left-3 top-3 z-40 flex h-[calc(100vh-24px)] w-72 flex-col overflow-hidden rounded-2xl border border-[var(--border)]/30 bg-[var(--background)]/40 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.09),0_24px_70px_-28px_rgba(0,0,0,0.55)] backdrop-blur-2xl backdrop-saturate-150 transition-[width,transform] duration-300 ease-out lg:static lg:z-20 lg:my-3 lg:ml-3 lg:translate-x-0 ${
+          collapsed ? "lg:w-[78px]" : "lg:w-64"
+        } ${open ? "translate-x-0" : "-translate-x-[calc(100%+12px)]"}`}
       >
+        {/* Glass sheen overlay */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/[0.06] via-transparent to-transparent" />
+
+        {/* Collapse handle (desktop only) */}
+        <button
+          onClick={toggleCollapsed}
+          className="absolute -right-3 top-[72px] z-10 hidden size-6 items-center justify-center rounded-full border border-[var(--border)]/50 bg-[var(--background)] text-[var(--muted-foreground)] shadow-md transition-colors hover:text-[var(--foreground)] lg:flex"
+          aria-label={collapsed ? "Expandir menú" : "Contraer menú"}
+        >
+          {collapsed ? <ChevronRight size={13} /> : <ChevronLeft size={13} />}
+        </button>
+
         {/* Logo */}
-        <div className="flex items-center gap-2 border-b border-[var(--border)] p-4">
-          <div className="grid size-8 shrink-0 place-items-center overflow-hidden rounded-lg bg-[var(--primary)]">
-            <img src="/android-chrome-192x192.png" alt="SCRUM-IA" className="size-5 object-contain" />
+        <div className={`relative flex items-center gap-2.5 border-b border-[var(--border)]/50 p-4 ${collapsed ? "justify-center" : ""}`}>
+          <div className="grid size-9 shrink-0 place-items-center rounded-xl border border-[var(--border)]/50 bg-white/[0.05] backdrop-blur-sm">
+            <img src="/android-chrome-192x192.png" alt="" className="size-5 object-contain" />
           </div>
-          <div>
-            <p className="text-sm font-bold text-[var(--foreground)]">SCRUM-IA</p>
-            <p className="font-mono text-[9.5px] uppercase tracking-[0.18em] text-[var(--muted-foreground)]">Aula ágil</p>
-          </div>
+          {!collapsed && (
+            <div className="min-w-0">
+              <p className="truncate text-sm font-bold text-[var(--foreground)]">SCRUM-IA</p>
+              <p className="font-mono text-[9.5px] uppercase tracking-[0.18em] text-[var(--muted-foreground)]">Aula ágil</p>
+            </div>
+          )}
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 space-y-5 overflow-y-auto p-3">
+        <nav className="relative flex-1 space-y-5 overflow-y-auto p-3">
           <div>
-            <NavLabel>Plataforma</NavLabel>
+            <NavLabel collapsed={collapsed}>Plataforma</NavLabel>
             <div className="space-y-1">
               {platformNav.map((item) => navLink(item, pathname === item.href))}
               {(user?.role === "coordinator" || user?.role === "admin") &&
@@ -159,7 +188,7 @@ export default function Sidebar() {
 
           {tfgId && (
             <div>
-              <NavLabel>{activeTfg?.title || "Proyecto"}</NavLabel>
+              <NavLabel collapsed={collapsed}>{activeTfg?.title || "Proyecto"}</NavLabel>
               <div className="space-y-1">
                 {tfgNav.map((item) => {
                   const active = item.name === "Resumen" ? pathname === item.href : pathname.startsWith(item.href);
@@ -171,23 +200,25 @@ export default function Sidebar() {
         </nav>
 
         {/* Footer — account, profile, active sprint, theme & access */}
-        <div className="space-y-3 border-t border-[var(--border)] p-3">
-          <div className="flex items-center gap-2">
-            <Link href="/profile"
-              className={`flex min-w-0 flex-1 items-center gap-2 rounded-xl px-2 py-1.5 transition-colors hover:bg-[var(--accent)] ${pathname === "/profile" ? "bg-[var(--accent)]" : ""}`}>
+        <div className="relative space-y-3 border-t border-[var(--border)]/50 p-3">
+          <div className={`flex items-center gap-2 ${collapsed ? "flex-col" : ""}`}>
+            <Link href="/profile" title={collapsed ? user?.name : undefined}
+              className={`flex min-w-0 items-center gap-2 rounded-xl transition-colors hover:bg-[var(--accent)] ${collapsed ? "justify-center p-1.5" : "flex-1 px-2 py-1.5"} ${pathname === "/profile" ? "bg-[var(--accent)]" : ""}`}>
               <div className="grid size-7 shrink-0 place-items-center rounded-full bg-[var(--primary)] text-xs font-bold text-[var(--primary-foreground)]">
                 {user?.name?.charAt(0).toUpperCase()}
               </div>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-xs font-medium text-[var(--foreground)]">{user?.name}</p>
-                <p className="truncate text-xs text-[var(--muted-foreground)]">{user?.role}</p>
-              </div>
+              {!collapsed && (
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-xs font-medium text-[var(--foreground)]">{user?.name}</p>
+                  <p className="truncate text-xs text-[var(--muted-foreground)]">{user?.role}</p>
+                </div>
+              )}
             </Link>
             <NotificationBell />
           </div>
 
-          {activeSprint && (
-            <div className="rounded-xl border border-[var(--border)] bg-[var(--accent)]/40 p-3">
+          {activeSprint && !collapsed && (
+            <div className="rounded-xl border border-[var(--border)]/60 bg-white/[0.04] p-3 backdrop-blur-sm">
               <div className="flex items-center justify-between gap-2">
                 <p className="flex min-w-0 items-center gap-1.5 truncate text-xs font-semibold text-[var(--foreground)]">
                   <span className="size-1.5 shrink-0 rounded-full bg-[var(--primary)]" />
@@ -209,9 +240,9 @@ export default function Sidebar() {
           )}
 
           <div>
-            <NavLabel>Cuenta</NavLabel>
-            <div className="flex items-center gap-2 px-1">
-              <div className="flex flex-1 items-center gap-1.5">
+            <NavLabel collapsed={collapsed}>Cuenta</NavLabel>
+            <div className={`flex items-center gap-2 px-1 ${collapsed ? "flex-col" : ""}`}>
+              <div className={`flex items-center gap-1.5 ${collapsed ? "flex-col" : "flex-1"}`}>
                 {(["green", "blue", "red", "orange"] as const).map((t) => (
                   <button key={t} onClick={() => setTheme(t)}
                     className={`size-5 rounded-full border-2 transition-transform ${theme === t ? "scale-110 border-[var(--foreground)]" : "border-transparent"}`}
@@ -221,20 +252,22 @@ export default function Sidebar() {
                 ))}
               </div>
               <button onClick={toggleMode}
-                className="grid size-8 place-items-center rounded-lg text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
+                className="grid size-8 shrink-0 place-items-center rounded-lg text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
                 aria-label={mode === "light" ? "Cambiar a modo oscuro" : "Cambiar a modo claro"}>
                 {mode === "light" ? <Moon size={15} /> : <Sun size={15} />}
               </button>
             </div>
-            <button onClick={handleLogout}
-              className="mt-1.5 flex w-full items-center gap-3 rounded-xl px-3 py-2 text-[13px] text-red-500 transition-colors hover:bg-[var(--accent)]">
-              <LogOut size={16} /> Cerrar sesión
+            <button onClick={handleLogout} title={collapsed ? "Cerrar sesión" : undefined}
+              className={`mt-1.5 flex w-full items-center gap-3 rounded-xl px-3 py-2 text-[13px] text-red-500 transition-colors hover:bg-[var(--accent)] ${collapsed ? "justify-center px-0" : ""}`}>
+              <LogOut size={16} /> {!collapsed && "Cerrar sesión"}
             </button>
           </div>
 
-          <p className="truncate text-center font-mono text-[9.5px] uppercase tracking-[0.18em] text-[var(--muted-foreground)]/60">
-            {pathname}
-          </p>
+          {!collapsed && (
+            <p className="truncate text-center font-mono text-[9.5px] uppercase tracking-[0.18em] text-[var(--muted-foreground)]/60">
+              {pathname}
+            </p>
+          )}
         </div>
       </aside>
     </>
