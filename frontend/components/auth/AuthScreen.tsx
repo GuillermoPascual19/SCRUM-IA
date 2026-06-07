@@ -308,23 +308,14 @@ export default function AuthScreen({ mode }: Props) {
 
         {/* Footer */}
         <div
-          className="flex items-end justify-between"
+          className="flex flex-col gap-1.5 text-[11px] text-[#444]"
           style={{ animation: "rise-in 0.9s ease-out 0.5s both" }}
         >
-          <div className="flex flex-col gap-1.5 text-[11px] text-[#444]">
-            <span className="inline-flex items-center gap-2 text-[#555]">
-              <ShieldCheck size={13} className="text-[#22c55e]" />
-              JWT · Zod validation · Helmet.js · Rate limiting
-            </span>
-            <span>© 2026 SCRUM-IA · Trabajo Fin de Grado</span>
-          </div>
-          <div className="flex -space-x-2">
-            {["G", "A", "M", "+"].map((c, i) => (
-              <span key={i} className={`grid size-8 place-items-center rounded-full border-2 border-[#080808] text-[11px] font-semibold ${
-                i === 3 ? "bg-[#1a1a1a] text-[#555]" : "bg-gradient-to-br from-[#22c55e]/80 to-[#16a34a]/40 text-black"
-              }`}>{c}</span>
-            ))}
-          </div>
+          <span className="inline-flex items-center gap-2 text-[#555]">
+            <ShieldCheck size={13} className="text-[#22c55e]" />
+            JWT · Zod validation · Helmet.js · Rate limiting
+          </span>
+          <span>© 2026 SCRUM-IA · Trabajo Fin de Grado</span>
         </div>
       </aside>
 
@@ -557,13 +548,6 @@ export default function AuthScreen({ mode }: Props) {
               </p>
             </form>
           </div>
-
-          <p className="mt-5 text-center text-[11px] text-[#333]">
-            Al continuar aceptas los{" "}
-            <span className="hover:text-[#555] cursor-pointer underline underline-offset-4 transition-colors">Términos</span>{" "}
-            y la{" "}
-            <span className="hover:text-[#555] cursor-pointer underline underline-offset-4 transition-colors">Política de privacidad</span>.
-          </p>
         </div>
       </main>
     </div>

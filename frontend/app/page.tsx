@@ -137,7 +137,7 @@ export default function LandingPage() {
               Entrar
             </Link>
             <Link href="/register" className="inline-flex items-center gap-1.5 rounded-full bg-[#22c55e] px-4 py-2 text-[13px] font-semibold text-black transition-colors hover:bg-[#16a34a]">
-              Empezar <ArrowUpRight className="size-3.5" />
+              Crear cuenta <ArrowUpRight className="size-3.5" />
             </Link>
           </div>
         </nav>
