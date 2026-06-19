@@ -5,26 +5,20 @@ import {
   updateSprint,
   deleteSprint,
 } from "../repositories/sprint.repository";
-import { findTfgById, isMemberOrTutor } from "../repositories/tfg.repository";
+import { findTfgById } from "../repositories/tfg.repository";
 import { prisma } from "../lib/prisma";
 
-export async function getSprintsByTfg(tfgId: number, requesterId: number, requesterRole: string) {
+
+
+export async function getSprintsByTfg(tfgId: number) {
   const tfg = await findTfgById(tfgId);
   if (!tfg) throw new Error("TFG_NOT_FOUND");
-  if (requesterRole !== "admin" && requesterRole !== "coordinator") {
-    const ok = await isMemberOrTutor(tfgId, requesterId);
-    if (!ok) throw new Error("FORBIDDEN");
-  }
   return findSprintsByTfg(tfgId);
 }
 
-export async function getSprintById(id: number, requesterId: number, requesterRole: string) {
+export async function getSprintById(id: number) {
   const sprint = await findSprintById(id);
   if (!sprint) throw new Error("SPRINT_NOT_FOUND");
-  if (requesterRole !== "admin" && requesterRole !== "coordinator") {
-    const ok = await isMemberOrTutor(sprint.tfgId, requesterId);
-    if (!ok) throw new Error("FORBIDDEN");
-  }
   return sprint;
 }
 
@@ -94,13 +88,9 @@ export async function deleteExistingSprint(
   return deleteSprint(id);
 }
 
-export async function getBurndownData(sprintId: number, requesterId: number, requesterRole: string) {
+export async function getBurndownData(sprintId: number) {
   const sprint = await findSprintById(sprintId);
   if (!sprint) throw new Error("SPRINT_NOT_FOUND");
-  if (requesterRole !== "admin" && requesterRole !== "coordinator") {
-    const ok = await isMemberOrTutor(sprint.tfgId, requesterId);
-    if (!ok) throw new Error("FORBIDDEN");
-  }
   if (!sprint.startDate || !sprint.endDate) {
     return { days: [], totalPoints: 0, sprintName: sprint.name };
   }
@@ -148,11 +138,7 @@ export async function getBurndownData(sprintId: number, requesterId: number, req
   return { days, totalPoints, sprintName: sprint.name };
 }
 
-export async function getSprintPlanner(tfgId: number, requesterId: number, requesterRole: string) {
-  if (requesterRole !== "admin" && requesterRole !== "coordinator") {
-    const ok = await isMemberOrTutor(tfgId, requesterId);
-    if (!ok) throw new Error("FORBIDDEN");
-  }
+export async function getSprintPlanner(tfgId: number) {
   const sprints = await prisma.sprint.findMany({
     where: { tfgId },
     orderBy: { startDate: "asc" },

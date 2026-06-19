@@ -8,7 +8,7 @@ import {
 } from "../services/member.service";
 
 export async function getMembers(req: AuthRequest, res: Response) {
-  const members = await getMembersByTfg(Number(req.params.tfgId), req.user!.id, req.user!.role);
+  const members = await getMembersByTfg(Number(req.params.tfgId));
   res.json(members);
 }
 

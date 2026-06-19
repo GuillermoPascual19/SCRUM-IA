@@ -65,16 +65,3 @@ export async function updateTfg(id: number, data: {
 export async function deleteTfg(id: number) {
   return prisma.tfg.delete({ where: { id } });
 }
-
-export async function isMemberOrTutor(tfgId: number, userId: number): Promise<boolean> {
-  const count = await prisma.tfg.count({
-    where: {
-      id: tfgId,
-      OR: [
-        { tutorId: userId },
-        { members: { some: { userId } } },
-      ],
-    },
-  });
-  return count > 0;
-}

@@ -5,25 +5,17 @@ import {
   updateUserStory,
   deleteUserStory,
 } from "../repositories/userStory.repository";
-import { findTfgById, isMemberOrTutor } from "../repositories/tfg.repository";
+import { findTfgById } from "../repositories/tfg.repository";
 
-export async function getUserStoriesByTfg(tfgId: number, requesterId: number, requesterRole: string) {
+export async function getUserStoriesByTfg(tfgId: number) {
   const tfg = await findTfgById(tfgId);
   if (!tfg) throw new Error("TFG_NOT_FOUND");
-  if (requesterRole !== "admin" && requesterRole !== "coordinator") {
-    const ok = await isMemberOrTutor(tfgId, requesterId);
-    if (!ok) throw new Error("FORBIDDEN");
-  }
   return findUserStoriesByTfg(tfgId);
 }
 
-export async function getUserStoryById(id: number, requesterId: number, requesterRole: string) {
+export async function getUserStoryById(id: number) {
   const story = await findUserStoryById(id);
   if (!story) throw new Error("USER_STORY_NOT_FOUND");
-  if (requesterRole !== "admin" && requesterRole !== "coordinator") {
-    const ok = await isMemberOrTutor(story.tfgId, requesterId);
-    if (!ok) throw new Error("FORBIDDEN");
-  }
   return story;
 }
 

@@ -30,12 +30,12 @@ export async function generate(req: AuthRequest, res: Response) {
 }
 
 export async function getByTfg(req: AuthRequest, res: Response) {
-  const evaluations = await getEvaluationsByTfg(Number(req.params.tfgId), req.user!.id, req.user!.role);
+  const evaluations = await getEvaluationsByTfg(Number(req.params.tfgId));
   res.json(evaluations);
 }
 
 export async function update(req: AuthRequest, res: Response) {
-  const evaluation = await updateEvaluation(Number(req.params.id), req.body, Number(req.params.tfgId));
+  const evaluation = await updateEvaluation(Number(req.params.id), req.body);
   res.json(evaluation);
 }
 
@@ -51,12 +51,12 @@ export async function generateFinal(req: AuthRequest, res: Response) {
 }
 
 export async function getFinalGrades(req: AuthRequest, res: Response) {
-  const grades = await getFinalGradesByTfg(Number(req.params.tfgId), req.user!.id, req.user!.role);
+  const grades = await getFinalGradesByTfg(Number(req.params.tfgId));
   res.json(grades);
 }
 
 export async function updateFinal(req: AuthRequest, res: Response) {
-  const grade = await updateFinalGrade(Number(req.params.id), req.body, Number(req.params.tfgId));
+  const grade = await updateFinalGrade(Number(req.params.id), req.body);
   res.json(grade);
 }
 

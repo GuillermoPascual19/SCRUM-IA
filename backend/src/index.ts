@@ -17,7 +17,7 @@ import { tfgRouter, oauthRouter } from "./routes/github.routes";
 import adminRoutes from "./routes/admin.routes";
 import notificationRoutes from "./routes/notification.routes";
 
-import { authenticate, requireRole } from "./middleware/auth";
+import { authenticate } from "./middleware/auth";
 import { errorHandler } from "./middleware/errorHandler";
 import { prisma } from "./lib/prisma";
 
@@ -71,7 +71,7 @@ app.use("/api/tfgs/:tfgId/evaluations", aiRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/notifications", notificationRoutes);
 
-app.post("/api/auth/find-user", authenticate, requireRole("teacher", "coordinator", "admin"), async (req: any, res: any) => {
+app.post("/api/auth/find-user", authenticate, async (req: any, res: any) => {
   try {
     const { email } = req.body;
     if (!email) { res.status(400).json({ error: "Email requerido" }); return; }
@@ -86,7 +86,7 @@ app.post("/api/auth/find-user", authenticate, requireRole("teacher", "coordinato
   }
 });
 
-app.get("/api/auth/search-users", authenticate, requireRole("teacher", "coordinator", "admin"), async (req: any, res: any) => {
+app.get("/api/auth/search-users", authenticate, async (req: any, res: any) => {
   try {
     const { q } = req.query;
     if (!q || String(q).length < 2) { res.json([]); return; }

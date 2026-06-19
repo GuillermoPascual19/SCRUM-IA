@@ -5,17 +5,13 @@ import {
   updateMemberRole,
   removeMember,
 } from "../repositories/member.repository";
-import { findTfgById, isMemberOrTutor } from "../repositories/tfg.repository";
+import { findTfgById } from "../repositories/tfg.repository";
 import { findUserById } from "../repositories/user.repository";
 import { notify } from "./notification.service";
 
-export async function getMembersByTfg(tfgId: number, requesterId: number, requesterRole: string) {
+export async function getMembersByTfg(tfgId: number) {
   const tfg = await findTfgById(tfgId);
   if (!tfg) throw new Error("TFG_NOT_FOUND");
-  if (requesterRole !== "admin" && requesterRole !== "coordinator") {
-    const ok = await isMemberOrTutor(tfgId, requesterId);
-    if (!ok) throw new Error("FORBIDDEN");
-  }
   return findMembersByTfg(tfgId);
 }
 

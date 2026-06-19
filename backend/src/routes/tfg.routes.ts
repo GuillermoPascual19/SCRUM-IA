@@ -6,8 +6,8 @@ import { createTfgSchema, updateTfgSchema } from "../schemas/tfg.schemas";
 
 const router = Router();
 
-router.get("/", authenticate, getMine);
-router.get("/all", authenticate, requireRole("coordinator", "admin"), getAll);
+router.get("/", authenticate, getAll);
+router.get("/mine", authenticate, getMine);
 router.get("/:id", authenticate, getById);
 router.post("/", authenticate, requireRole("teacher", "coordinator", "admin"), validate(createTfgSchema), create);
 router.put("/:id", authenticate, requireRole("teacher", "coordinator", "admin"), validate(updateTfgSchema), update);

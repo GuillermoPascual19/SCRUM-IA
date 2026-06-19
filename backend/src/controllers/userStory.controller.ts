@@ -9,12 +9,12 @@ import {
 } from "../services/userStory.service";
 
 export async function getByTfg(req: AuthRequest, res: Response) {
-  const stories = await getUserStoriesByTfg(Number(req.params.tfgId), req.user!.id, req.user!.role);
+  const stories = await getUserStoriesByTfg(Number(req.params.tfgId));
   res.json(stories);
 }
 
 export async function getById(req: AuthRequest, res: Response) {
-  const story = await getUserStoryById(Number(req.params.id), req.user!.id, req.user!.role);
+  const story = await getUserStoryById(Number(req.params.id));
   res.json(story);
 }
 
