@@ -8,6 +8,7 @@ import {
   handleInstallationCallback,
   disconnectGithub,
   getGithubConnectionStatus,
+  verifyGithubState,
 } from "../services/github.service";
 
 export async function sync(req: AuthRequest, res: Response) {
@@ -16,12 +17,12 @@ export async function sync(req: AuthRequest, res: Response) {
 }
 
 export async function getByTfg(req: AuthRequest, res: Response) {
-  const commits = await getCommitsByTfg(Number(req.params.tfgId));
+  const commits = await getCommitsByTfg(Number(req.params.tfgId), req.user!.id, req.user!.role);
   res.json(commits);
 }
 
 export async function getBySprint(req: AuthRequest, res: Response) {
-  const commits = await getCommitsBySprint(Number(req.params.sprintId));
+  const commits = await getCommitsBySprint(Number(req.params.sprintId), Number(req.params.tfgId), req.user!.id, req.user!.role);
   res.json(commits);
 }
 
@@ -37,9 +38,7 @@ export async function callback(req: Request, res: Response) {
     return;
   }
   try {
-    const { userId } = JSON.parse(
-      Buffer.from(String(state), "base64").toString()
-    );
+    const { userId } = verifyGithubState(String(state));
     await handleInstallationCallback(Number(installation_id), userId);
     res.redirect(`${process.env.FRONTEND_URL}/dashboard?github=success`);
   } catch {

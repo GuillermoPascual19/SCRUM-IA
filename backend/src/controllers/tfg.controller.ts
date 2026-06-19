@@ -15,7 +15,7 @@ export async function getAll(req: AuthRequest, res: Response) {
 }
 
 export async function getById(req: AuthRequest, res: Response) {
-  const tfg = await getTfgById(Number(req.params.id));
+  const tfg = await getTfgById(Number(req.params.id), req.user!.id, req.user!.role);
   res.json(tfg);
 }
 
