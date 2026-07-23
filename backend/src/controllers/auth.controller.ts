@@ -7,8 +7,8 @@ import {
 } from "../services/auth.service";
 
 export async function register(req: Request, res: Response) {
-  const { name, email, password, role } = req.body;
-  const user = await registerUser(name, email, password, role);
+  const { name, email, password } = req.body;
+  const user = await registerUser(name, email, password);
   res.status(201).json(user);
 }
 

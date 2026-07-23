@@ -72,4 +72,15 @@ export async function hasGradeOrReport(tfgId: number): Promise<boolean> {
     prisma.tfgReport.count({ where: { tfgId } }),
   ]);
   return gradeCount > 0 || reportCount > 0;
+export async function isMemberOrTutor(tfgId: number, userId: number): Promise<boolean> {
+  const count = await prisma.tfg.count({
+    where: {
+      id: tfgId,
+      OR: [
+        { tutorId: userId },
+        { members: { some: { userId } } },
+      ],
+    },
+  });
+  return count > 0;
 }

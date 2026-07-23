@@ -121,7 +121,12 @@ Criterios de evaluación:
   );
 }
 
-export async function getEvaluationsByTfg(tfgId: number) {
+export async function getEvaluationsByTfg(tfgId: number, requesterId: number, requesterRole: string) {
+  if (requesterRole !== "admin" && requesterRole !== "coordinator") {
+    const { isMemberOrTutor } = await import("../repositories/tfg.repository");
+    const ok = await isMemberOrTutor(tfgId, requesterId);
+    if (!ok) throw new Error("FORBIDDEN");
+  }
   return prisma.evaluation.findMany({
     where: { tfgId },
     include: {
@@ -139,8 +144,12 @@ export async function updateEvaluation(
     finalScore?: number;
     comments?: string;
     weight?: number;
-  }
+  },
+  tfgId: number
 ) {
+  const existing = await prisma.evaluation.findUnique({ where: { id }, select: { tfgId: true } });
+  if (!existing || existing.tfgId !== tfgId) throw new Error("FORBIDDEN");
+
   const evaluation = await prisma.evaluation.update({
     where: { id },
     data: { ...data, reviewedByProfessor: true },
@@ -247,7 +256,12 @@ Devuelve ÚNICAMENTE un JSON válido:
   });
 }
 
-export async function getFinalGradesByTfg(tfgId: number) {
+export async function getFinalGradesByTfg(tfgId: number, requesterId: number, requesterRole: string) {
+  if (requesterRole !== "admin" && requesterRole !== "coordinator") {
+    const { isMemberOrTutor } = await import("../repositories/tfg.repository");
+    const ok = await isMemberOrTutor(tfgId, requesterId);
+    if (!ok) throw new Error("FORBIDDEN");
+  }
   return prisma.tfgFinalGrade.findMany({
     where: { tfgId },
     include: {
@@ -258,7 +272,10 @@ export async function getFinalGradesByTfg(tfgId: number) {
   });
 }
 
-export async function updateFinalGrade(id: number, data: { finalScore?: number; finalComment?: string }) {
+export async function updateFinalGrade(id: number, data: { finalScore?: number; finalComment?: string }, tfgId: number) {
+  const existing = await prisma.tfgFinalGrade.findUnique({ where: { id }, select: { tfgId: true } });
+  if (!existing || existing.tfgId !== tfgId) throw new Error("FORBIDDEN");
+
   return prisma.tfgFinalGrade.update({
     where: { id },
     data: { ...data, reviewedByProfessor: true },

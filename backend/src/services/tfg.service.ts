@@ -6,16 +6,24 @@ import {
   createTfg,
   updateTfg,
   deleteTfg,
+
+
   hasGradeOrReport,
+  isMemberOrTutor,
+main
 } from "../repositories/tfg.repository";
 
 export async function getAllTfgs() {
   return findAllTfgs();
 }
 
-export async function getTfgById(id: number) {
+export async function getTfgById(id: number, requesterId: number, requesterRole: string) {
   const tfg = await findTfgById(id);
   if (!tfg) throw new Error("TFG_NOT_FOUND");
+  if (requesterRole !== "admin" && requesterRole !== "coordinator") {
+    const ok = await isMemberOrTutor(id, requesterId);
+    if (!ok) throw new Error("FORBIDDEN");
+  }
   return tfg;
 }
 
