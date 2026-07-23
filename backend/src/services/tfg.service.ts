@@ -6,6 +6,7 @@ import {
   createTfg,
   updateTfg,
   deleteTfg,
+  hasGradeOrReport,
 } from "../repositories/tfg.repository";
 
 export async function getAllTfgs() {
@@ -55,6 +56,11 @@ export async function updateExistingTfg(
 
   if (userRole !== "admin" && userRole !== "coordinator" && tfg.tutorId !== userId) {
     throw new Error("FORBIDDEN");
+  }
+
+  if (data.status === "completed" && tfg.status !== "completed") {
+    const hasGrade = await hasGradeOrReport(id);
+    if (!hasGrade) throw new Error("TFG_NO_GRADE_OR_REPORT");
   }
 
   return updateTfg(id, data);

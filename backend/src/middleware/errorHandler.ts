@@ -14,6 +14,7 @@ const ERROR_MAP: Record<string, { status: number; message: string }> = {
   FORBIDDEN:             { status: 403, message: "Acceso denegado" },
   ALREADY_MEMBER:        { status: 400, message: "El usuario ya es miembro del TFG" },
   MEMBER_NOT_FOUND:      { status: 404, message: "Miembro no encontrado" },
+  TFG_NO_GRADE_OR_REPORT:{ status: 400, message: "El TFG necesita al menos una nota final o un informe antes de poder completarse" },
   // Sprint / Story / Task
   SPRINT_NOT_FOUND:      { status: 404, message: "Sprint no encontrado" },
   USER_STORY_NOT_FOUND:  { status: 404, message: "Historia de usuario no encontrada" },
