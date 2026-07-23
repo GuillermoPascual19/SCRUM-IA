@@ -144,17 +144,20 @@ export default function Sidebar() {
       )}
 
       <aside
-        className={`fixed left-3 top-3 z-40 flex h-[calc(100vh-24px)] w-72 flex-col overflow-hidden rounded-2xl border border-[var(--border)]/30 bg-[var(--background)]/40 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.09),0_24px_70px_-28px_rgba(0,0,0,0.55)] backdrop-blur-2xl backdrop-saturate-150 transition-[width,transform] duration-300 ease-out lg:static lg:z-20 lg:my-3 lg:ml-3 lg:translate-x-0 ${
+        className={`fixed left-3 top-3 z-40 flex h-[calc(100vh-24px)] w-72 flex-col transition-[width,transform] duration-300 ease-out lg:static lg:z-20 lg:my-3 lg:ml-3 lg:translate-x-0 ${
           collapsed ? "lg:w-[78px]" : "lg:w-64"
         } ${open ? "translate-x-0" : "-translate-x-[calc(100%+12px)]"}`}
       >
-        {/* Glass sheen overlay */}
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/[0.06] via-transparent to-transparent" />
+        {/* Glass background layer — clipped on its own so the collapse handle and the
+            notification panel (both absolutely positioned to spill past the rail) aren't cut off */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-2xl border border-[var(--border)]/30 bg-[var(--background)]/40 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.09),0_24px_70px_-28px_rgba(0,0,0,0.55)] backdrop-blur-2xl backdrop-saturate-150">
+          <div className="absolute inset-0 bg-gradient-to-b from-white/[0.06] via-transparent to-transparent" />
+        </div>
 
         {/* Collapse handle (desktop only) */}
         <button
           onClick={toggleCollapsed}
-          className="absolute -right-3 top-[72px] z-10 hidden size-6 items-center justify-center rounded-full border border-[var(--border)]/50 bg-[var(--background)] text-[var(--muted-foreground)] shadow-md transition-colors hover:text-[var(--foreground)] lg:flex"
+          className="absolute -right-3 top-[72px] z-20 hidden size-6 items-center justify-center rounded-full border border-[var(--border)]/50 bg-[var(--background)] text-[var(--muted-foreground)] shadow-md transition-colors hover:text-[var(--foreground)] lg:flex"
           aria-label={collapsed ? "Expandir menú" : "Contraer menú"}
         >
           {collapsed ? <ChevronRight size={13} /> : <ChevronLeft size={13} />}
