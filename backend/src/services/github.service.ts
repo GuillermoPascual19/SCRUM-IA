@@ -1,5 +1,7 @@
 import { prisma } from "../lib/prisma";
 import fs from "fs";
+import crypto from "crypto";
+import { isMemberOrTutor } from "../repositories/tfg.repository";
 
 // async function getApp() {
 //   const { App } = await import("@octokit/app");
@@ -46,9 +48,27 @@ function parseRepo(repositoryUrl: string) {
   return { owner: match[1], repo: match[2] };
 }
 
-export function getGithubAuthUrl(userId: number) {
-  const state = Buffer.from(JSON.stringify({ userId })).toString("base64");
+export function getGithubAuthUrl(userId: number): string {
+  const payload = JSON.stringify({ userId, ts: Date.now() });
+  const sig = crypto.createHmac("sha256", process.env.JWT_SECRET!).update(payload).digest("hex");
+  const state = Buffer.from(JSON.stringify({ payload, sig })).toString("base64url");
   return `https://github.com/apps/${process.env.GITHUB_APP_NAME}/installations/new?state=${state}`;
+}
+
+export function verifyGithubState(rawState: string): { userId: number } {
+  let parsed: { payload: string; sig: string };
+  try {
+    parsed = JSON.parse(Buffer.from(rawState, "base64url").toString());
+  } catch {
+    throw new Error("INVALID_STATE");
+  }
+  const expected = crypto.createHmac("sha256", process.env.JWT_SECRET!).update(parsed.payload).digest("hex");
+  const sigBuf = Buffer.from(parsed.sig, "hex");
+  const expBuf = Buffer.from(expected, "hex");
+  if (sigBuf.length !== expBuf.length || !crypto.timingSafeEqual(sigBuf, expBuf)) {
+    throw new Error("INVALID_STATE");
+  }
+  return JSON.parse(parsed.payload);
 }
 
 export async function handleInstallationCallback(
@@ -164,7 +184,11 @@ export async function syncCommits(tfgId: number) {
   return { synced, skipped, total: githubCommits.length };
 }
 
-export async function getCommitsByTfg(tfgId: number) {
+export async function getCommitsByTfg(tfgId: number, requesterId: number, requesterRole: string) {
+  if (requesterRole !== "admin" && requesterRole !== "coordinator") {
+    const ok = await isMemberOrTutor(tfgId, requesterId);
+    if (!ok) throw new Error("FORBIDDEN");
+  }
   return prisma.commit.findMany({
     where: { tfgId },
     include: {
@@ -176,7 +200,11 @@ export async function getCommitsByTfg(tfgId: number) {
   });
 }
 
-export async function getCommitsBySprint(sprintId: number) {
+export async function getCommitsBySprint(sprintId: number, tfgId: number, requesterId: number, requesterRole: string) {
+  if (requesterRole !== "admin" && requesterRole !== "coordinator") {
+    const ok = await isMemberOrTutor(tfgId, requesterId);
+    if (!ok) throw new Error("FORBIDDEN");
+  }
   return prisma.commit.findMany({
     where: { sprintId },
     include: {

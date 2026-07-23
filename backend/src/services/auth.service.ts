@@ -14,7 +14,7 @@ import {
 import { prisma } from "../lib/prisma";
 import { sendActivationEmail, sendPasswordResetEmail } from "./email.service";
 
-export async function registerUser(name: string, email: string, password: string, role: string) {
+export async function registerUser(name: string, email: string, password: string) {
   const existing = await findUserByEmail(email);
   if (existing) throw new Error("EMAIL_IN_USE");
 
@@ -23,7 +23,7 @@ export async function registerUser(name: string, email: string, password: string
   const activationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
   const user = await createUser({
-    name, email, password: hashed, role,
+    name, email, password: hashed, role: "student",
     isActive: false, activationToken, activationTokenExpires,
   });
 
