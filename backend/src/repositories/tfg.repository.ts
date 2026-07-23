@@ -66,6 +66,12 @@ export async function deleteTfg(id: number) {
   return prisma.tfg.delete({ where: { id } });
 }
 
+export async function hasGradeOrReport(tfgId: number): Promise<boolean> {
+  const [gradeCount, reportCount] = await Promise.all([
+    prisma.tfgFinalGrade.count({ where: { tfgId } }),
+    prisma.tfgReport.count({ where: { tfgId } }),
+  ]);
+  return gradeCount > 0 || reportCount > 0;
 export async function isMemberOrTutor(tfgId: number, userId: number): Promise<boolean> {
   const count = await prisma.tfg.count({
     where: {

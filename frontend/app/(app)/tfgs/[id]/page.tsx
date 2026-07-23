@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import axios from "axios";
 import api from "@/lib/axios";
 import { Tfg, Sprint, TfgMember } from "@/lib/types";
 import { useAuthStore } from "@/store/auth.store";
@@ -11,6 +12,15 @@ type Tab = "resumen" | "sprints" | "backlog" | "evaluacion";
 
 function isProfessor(role?: string) {
   return role === "teacher" || role === "coordinator" || role === "admin";
+}
+
+// "activo"/"completado" son el valor histórico en BD (español); "active"/"completed" es lo que
+// valida el backend hoy. Se aceptan ambos para no romper TFGs creados antes de este cambio.
+function isActiveStatus(status?: string) {
+  return status === "activo" || status === "active";
+}
+function isRevisionStatus(status?: string) {
+  return status === "revision";
 }
 
 export default function TfgDetailPage() {
@@ -32,6 +42,8 @@ export default function TfgDetailPage() {
   const [searchResults, setSearchResults] = useState<{ id: number; name: string; email: string; role: string }[]>([]);
   const [selectedUser, setSelectedUser] = useState<{ id: number; name: string; email: string } | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [statusUpdating, setStatusUpdating] = useState(false);
+  const [statusError, setStatusError] = useState("");
 
   useEffect(() => { fetchData(); }, [id]);
 
@@ -86,6 +98,20 @@ export default function TfgDetailPage() {
     }
   }
 
+  async function handleStatusChange(newStatus: string) {
+    setStatusError("");
+    setStatusUpdating(true);
+    try {
+      const { data } = await api.put(`/tfgs/${id}`, { status: newStatus });
+      setTfg((prev) => (prev ? { ...prev, status: data.status } : prev));
+    } catch (err) {
+      const message = axios.isAxiosError(err) ? err.response?.data?.error : undefined;
+      setStatusError(message || "No se pudo cambiar el estado del TFG");
+    } finally {
+      setStatusUpdating(false);
+    }
+  }
+
   async function handleRemoveMember(userId: number) {
     try {
       await api.delete(`/tfgs/${id}/members/${userId}`);
@@ -118,8 +144,22 @@ export default function TfgDetailPage() {
           <h1 className="text-3xl font-bold text-[var(--foreground)]">{tfg.title}</h1>
           <div className="flex flex-wrap items-center gap-3 mt-2">
             <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-              tfg.status === "activo" ? "bg-green-500/20 text-green-400" : "bg-[var(--muted)] text-[var(--muted-foreground)]"
+              isActiveStatus(tfg.status) ? "bg-green-500/20 text-green-400" :
+              isRevisionStatus(tfg.status) ? "bg-yellow-500/20 text-yellow-400" :
+              "bg-[var(--muted)] text-[var(--muted-foreground)]"
             }`}>{tfg.status}</span>
+            {isProfessor(user?.role) && isActiveStatus(tfg.status) && (
+              <button onClick={() => handleStatusChange("revision")} disabled={statusUpdating}
+                className="text-xs px-2 py-1 rounded-full border border-[var(--border)] text-[var(--muted-foreground)] hover:border-[var(--primary)] hover:text-[var(--primary)] transition-colors disabled:opacity-50">
+                {statusUpdating ? "Guardando…" : "Pasar a revisión →"}
+              </button>
+            )}
+            {isProfessor(user?.role) && isRevisionStatus(tfg.status) && (
+              <button onClick={() => handleStatusChange("completed")} disabled={statusUpdating}
+                className="text-xs px-2 py-1 rounded-full border border-[var(--border)] text-[var(--muted-foreground)] hover:border-[var(--primary)] hover:text-[var(--primary)] transition-colors disabled:opacity-50">
+                {statusUpdating ? "Guardando…" : "Marcar como completado →"}
+              </button>
+            )}
             <span className="text-xs text-[var(--muted-foreground)]">{tfg.academicYear}</span>
             <span className="text-xs text-[var(--muted-foreground)]">Tutor: {tfg.tutor?.name || "—"}</span>
             {activeSprint && (
@@ -128,6 +168,9 @@ export default function TfgDetailPage() {
               </span>
             )}
           </div>
+          {statusError && (
+            <p className="mt-2 text-xs text-red-500 bg-red-500/10 px-3 py-2 rounded-lg max-w-md">{statusError}</p>
+          )}
         </div>
         <div className="flex gap-2 shrink-0">
           {tfg.repositoryUrl && (

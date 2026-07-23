@@ -60,7 +60,7 @@ export default function TfgsPage() {
 
   async function fetchTfgs() {
     try {
-      const { data } = await api.get("/tfgs/mine");
+      const { data } = await api.get("/tfgs");
       setTfgs(data);
       setFiltered(data);
     } catch {
