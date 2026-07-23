@@ -6,11 +6,8 @@ import {
   createTfg,
   updateTfg,
   deleteTfg,
-
-
   hasGradeOrReport,
   isMemberOrTutor,
-main
 } from "../repositories/tfg.repository";
 
 export async function getAllTfgs() {
