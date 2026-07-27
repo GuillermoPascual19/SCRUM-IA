@@ -13,7 +13,7 @@ export async function generateEvaluation(
   const [tfg, sprint, student, commits, tasks] = await Promise.all([
     prisma.tfg.findUnique({ where: { id: tfgId }, select: { title: true } }),
     prisma.sprint.findUnique({ where: { id: sprintId }, select: { name: true, goal: true, startDate: true, endDate: true } }),
-    prisma.user.findUnique({ where: { id: studentId }, select: { name: true, email: true } }),
+    prisma.user.findUnique({ where: { id: studentId }, select: { id: true } }),
     prisma.commit.findMany({
       where: { tfgId, sprintId, studentId },
       orderBy: { date: "asc" },
@@ -29,15 +29,14 @@ export async function generateEvaluation(
   const doneTasks = tasks.filter((t) => t.status === "done").length;
   const totalTasks = tasks.length;
 
-  const prompt = `Eres un evaluador académico experto en metodología SCRUM y desarrollo de software. 
-Analiza la actividad del siguiente estudiante en su TFG y genera una evaluación detallada.
+  const prompt = `Eres un evaluador académico experto en metodología SCRUM y desarrollo de software.
+Analiza la actividad de un estudiante (identidad no revelada intencionadamente) en su TFG y genera una evaluación detallada.
 
 ## Contexto
 - **Proyecto TFG:** ${tfg.title}
 - **Sprint:** ${sprint.name}
 - **Objetivo del sprint:** ${sprint.goal || "No especificado"}
 - **Periodo:** ${sprint.startDate ? new Date(sprint.startDate).toLocaleDateString("es-ES") : "?"} - ${sprint.endDate ? new Date(sprint.endDate).toLocaleDateString("es-ES") : "?"}
-- **Estudiante:** ${student.name} (${student.email})
 
 ## Actividad en commits (${commits.length} commits)
 ${commits.map((c) => `- [${new Date(c.date).toLocaleDateString("es-ES")}] ${c?.message?.split("\n")[0]} (+${c.linesAdded}/-${c.linesDeleted}, ${c.filesChanged} archivos)`).join("\n") || "Sin commits en este sprint"}
@@ -184,21 +183,15 @@ export async function generateFinalGrade(tfgId: number, studentId: number, profe
 
   const average = validScores.reduce((a, b) => a + b, 0) / validScores.length;
 
-  const student = await prisma.user.findUnique({
-    where: { id: studentId },
-    select: { name: true },
-  });
-
   const tfg = await prisma.tfg.findUnique({
     where: { id: tfgId },
     select: { title: true },
   });
 
-  const prompt = `Eres un evaluador académico experto. Resume el rendimiento global de un estudiante en su TFG.
+  const prompt = `Eres un evaluador académico experto. Resume el rendimiento global de un estudiante (identidad no revelada intencionadamente) en su TFG.
 
 ## Datos
 - **Proyecto:** ${tfg?.title}
-- **Estudiante:** ${student?.name}
 - **Evaluaciones por sprint:**
 ${evaluations.map((e) => `  - ${e.sprint.name}: nota ${e.finalScore ?? "sin nota"} — ${e.comments?.slice(0, 100)}...`).join("\n")}
 - **Media de sprints:** ${average.toFixed(2)}
