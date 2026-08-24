@@ -34,7 +34,7 @@ export default function DashboardPage() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const { data: tfgData } = await api.get("/tfgs/mine");
+        const { data: tfgData } = await api.get("/tfgs");
         setTfgs(tfgData);
 
         if (tfgData.length > 0) {
