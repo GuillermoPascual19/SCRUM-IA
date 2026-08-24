@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 import api from "@/lib/axios";
 import { Tfg } from "@/lib/types";
 import { useAuthStore } from "@/store/auth.store";
@@ -31,7 +32,6 @@ export default function TfgsPage() {
   const router = useRouter();
   const { user } = useAuthStore();
   const [tfgs, setTfgs] = useState<Tfg[]>([]);
-  const [filtered, setFiltered] = useState<Tfg[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("todos");
@@ -44,9 +44,20 @@ export default function TfgsPage() {
   const [repoUrl, setRepoUrl] = useState("");
   const [savingRepo, setSavingRepo] = useState(false);
 
+  async function fetchTfgs() {
+    try {
+      const { data } = await api.get("/tfgs");
+      setTfgs(data);
+    } catch {
+      console.error("Error al cargar TFGs");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   useEffect(() => { fetchTfgs(); }, []);
 
-  useEffect(() => {
+  const filtered = useMemo(() => {
     let result = tfgs;
     if (search) {
       result = result.filter((t) =>
@@ -55,20 +66,8 @@ export default function TfgsPage() {
       );
     }
     if (filter !== "todos") result = result.filter((t) => t.status === filter);
-    setFiltered(result);
+    return result;
   }, [search, filter, tfgs]);
-
-  async function fetchTfgs() {
-    try {
-      const { data } = await api.get("/tfgs");
-      setTfgs(data);
-      setFiltered(data);
-    } catch {
-      console.error("Error al cargar TFGs");
-    } finally {
-      setLoading(false);
-    }
-  }
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
@@ -79,8 +78,9 @@ export default function TfgsPage() {
       setForm({ title: "", description: "", academicYear: "" });
       setShowForm(false);
       fetchTfgs();
-    } catch (e: any) {
-      setError(e.response?.data?.error || "Error al crear el TFG");
+    } catch (e) {
+      const message = axios.isAxiosError(e) ? e.response?.data?.error : undefined;
+      setError(message || "Error al crear el TFG");
     } finally {
       setSaving(false);
     }

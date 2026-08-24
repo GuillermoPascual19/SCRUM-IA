@@ -49,8 +49,6 @@ export default function AdminPage() {
     if (me && me.role !== "admin") router.replace("/dashboard");
   }, [me, router]);
 
-  useEffect(() => { fetchUsers(); }, []);
-
   async function fetchUsers() {
     try {
       const { data } = await api.get("/admin/users");
@@ -61,6 +59,12 @@ export default function AdminPage() {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    (async () => {
+      await fetchUsers();
+    })();
+  }, []);
 
   async function handleRoleChange(userId: number, role: string) {
     setUpdating(userId);

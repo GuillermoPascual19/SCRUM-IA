@@ -9,15 +9,11 @@ function ActivateContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams.get("token");
-  const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
-  const [message, setMessage] = useState("");
+  const [status, setStatus] = useState<"loading" | "success" | "error">(token ? "loading" : "error");
+  const [message, setMessage] = useState(token ? "" : "Enlace de activación inválido.");
 
   useEffect(() => {
-    if (!token) {
-      setStatus("error");
-      setMessage("Enlace de activación inválido.");
-      return;
-    }
+    if (!token) return;
     api
       .get(`/auth/activate?token=${token}`)
       .then(() => {
@@ -28,7 +24,7 @@ function ActivateContent() {
         setStatus("error");
         setMessage(e.response?.data?.error || "Error al activar la cuenta.");
       });
-  }, [token]);
+  }, [token, router]);
 
   return (
     <div className="max-w-sm w-full mx-auto text-center space-y-4 px-8">

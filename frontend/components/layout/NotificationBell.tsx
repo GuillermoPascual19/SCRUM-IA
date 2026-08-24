@@ -38,6 +38,13 @@ export default function NotificationBell() {
 
   const unread = notifications.filter(n => !n.read).length;
 
+  async function fetchNotifications() {
+    try {
+      const { data } = await api.get("/notifications");
+      setNotifications(data);
+    } catch {}
+  }
+
   useEffect(() => {
     fetchNotifications();
     const interval = setInterval(fetchNotifications, 60000);
@@ -51,13 +58,6 @@ export default function NotificationBell() {
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
-
-  async function fetchNotifications() {
-    try {
-      const { data } = await api.get("/notifications");
-      setNotifications(data);
-    } catch {}
-  }
 
   async function handleMarkRead(id: number) {
     await api.patch(`/notifications/${id}/read`).catch(() => {});
