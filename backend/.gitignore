@@ -3,3 +3,7 @@ node_modules
 .env
 
 /src/generated/prisma
+
+# This project uses pnpm — ignore stray lockfiles from other package managers
+package-lock.json
+yarn.lock

@@ -89,7 +89,6 @@ export default function AuthScreen({ mode }: Props) {
   const [name, setName] = useState("");
   const [pwd, setPwd] = useState("");
   const [confirmPwd, setConfirmPwd] = useState("");
-  const [role, setRole] = useState("student");
   const [showPwd, setShowPwd] = useState(false);
   const [showConfirmPwd, setShowConfirmPwd] = useState(false);
   const [focus, setFocus] = useState<string | null>(null);
@@ -162,7 +161,7 @@ export default function AuthScreen({ mode }: Props) {
         setAuth(data.user, data.token, data.refreshToken);
         router.push("/dashboard");
       } else {
-        await api.post("/auth/register", { name, email, password: pwd, role });
+        await api.post("/auth/register", { name, email, password: pwd });
         setRegistered(true);
       }
     } catch (err: any) {
@@ -474,26 +473,6 @@ export default function AuthScreen({ mode }: Props) {
                     </button>
                   }
                 />
-              )}
-
-              {/* Role */}
-              {!isLogin && (
-                <div className="relative">
-                  <select
-                    value={role}
-                    onChange={e => setRole(e.target.value)}
-                    className="w-full h-12 rounded-xl border border-[#2a2a2a] bg-[#0d0d0d] px-3 text-[14px] text-[#aaa] outline-none focus:border-[#22c55e]/60 focus:shadow-[0_0_0_3px_rgba(34,197,94,0.12)] transition-all appearance-none cursor-pointer"
-                  >
-                    <option value="student">Estudiante</option>
-                    <option value="teacher">Profesor</option>
-                    <option value="coordinator">Coordinador</option>
-                  </select>
-                  <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#444]">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                      <polyline points="6 9 12 15 18 9"/>
-                    </svg>
-                  </span>
-                </div>
               )}
 
               {/* Error */}

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import api from "@/lib/axios";
 import { Tfg } from "@/lib/types";
 import { useAuthStore } from "@/store/auth.store";
@@ -36,8 +35,6 @@ export default function CoordinatorPage() {
     }
   }, [user, router]);
 
-  useEffect(() => { fetchAll(); }, []);
-
   async function fetchAll() {
     try {
       const { data } = await api.get("/tfgs");
@@ -48,6 +45,12 @@ export default function CoordinatorPage() {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    (async () => {
+      await fetchAll();
+    })();
+  }, []);
 
   const tutorMap = new Map<number, { id: number; name: string; email: string }>();
   tfgs.forEach((t) => { if (t.tutor?.id != null) tutorMap.set(t.tutor.id, t.tutor as { id: number; name: string; email: string }); });

@@ -187,7 +187,7 @@ export async function getSprintPlanner(tfgId: number, requesterId: number, reque
   const lastSprint = established[established.length - 1];
 
   if (lastSprint?.endDate) {
-    let cursor = new Date(lastSprint.endDate);
+    const cursor = new Date(lastSprint.endDate);
     for (let i = 1; i <= 3; i++) {
       cursor.setDate(cursor.getDate() + avgGap);
       const predStart = new Date(cursor);

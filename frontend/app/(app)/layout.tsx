@@ -1,19 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth.store";
 import Sidebar from "@/components/layout/Sidebar";
 import { motion } from "framer-motion";
 
+const emptySubscribe = () => () => {};
+
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuthStore();
   const router = useRouter();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
 
   useEffect(() => {
     if (mounted && !isAuthenticated) {

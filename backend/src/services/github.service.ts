@@ -1,5 +1,4 @@
 import { prisma } from "../lib/prisma";
-import fs from "fs";
 import crypto from "crypto";
 import { isMemberOrTutor } from "../repositories/tfg.repository";
 

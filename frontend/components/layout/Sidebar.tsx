@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth.store";
@@ -54,12 +55,28 @@ export default function Sidebar() {
   const { activeTfg } = useTfgStore();
 
   const [open, setOpen] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(
+    () => typeof window !== "undefined" && localStorage.getItem("sidebar-collapsed") === "true"
+  );
   const [activeSprint, setActiveSprint] = useState<Sprint | null>(null);
 
   const tfgIdMatch = pathname.match(/^\/tfgs\/(\d+)/);
   const tfgId = tfgIdMatch ? tfgIdMatch[1] : null;
   const isProf = user?.role === "teacher" || user?.role === "coordinator" || user?.role === "admin";
+
+  /* Close the mobile drawer whenever the route changes */
+  const [drawerPathname, setDrawerPathname] = useState(pathname);
+  if (pathname !== drawerPathname) {
+    setDrawerPathname(pathname);
+    setOpen(false);
+  }
+
+  /* Reset the sprint countdown card whenever the active TFG changes */
+  const [sprintTfgId, setSprintTfgId] = useState(tfgId);
+  if (tfgId !== sprintTfgId) {
+    setSprintTfgId(tfgId);
+    setActiveSprint(null);
+  }
 
   const tfgNav = tfgId ? [
     { name: "Resumen", href: `/tfgs/${tfgId}`, icon: <LayoutDashboard size={16} /> },
@@ -71,14 +88,6 @@ export default function Sidebar() {
     ...(isProf ? [{ name: "Informes", href: `/tfgs/${tfgId}/reports`, icon: <FileText size={16} /> }] : []),
   ] : [];
 
-  /* Close the mobile drawer on navigation */
-  useEffect(() => { setOpen(false); }, [pathname]);
-
-  /* Restore the rail/expanded preference (desktop only) */
-  useEffect(() => {
-    setCollapsed(localStorage.getItem("sidebar-collapsed") === "true");
-  }, []);
-
   function toggleCollapsed() {
     setCollapsed((prev) => {
       const next = !prev;
@@ -89,7 +98,7 @@ export default function Sidebar() {
 
   /* Active sprint for the countdown card — only fetched while inside a TFG */
   useEffect(() => {
-    if (!tfgId) { setActiveSprint(null); return; }
+    if (!tfgId) return;
     let cancelled = false;
     api.get(`/tfgs/${tfgId}/sprints`)
       .then(({ data }) => {
@@ -166,7 +175,7 @@ export default function Sidebar() {
         {/* Logo */}
         <div className={`relative flex items-center gap-2.5 border-b border-[var(--border)]/50 p-4 ${collapsed ? "justify-center" : ""}`}>
           <div className="grid size-9 shrink-0 place-items-center rounded-xl border border-[var(--border)]/50 bg-white/[0.05] backdrop-blur-sm">
-            <img src="/android-chrome-192x192.png" alt="" className="size-5 object-contain" />
+            <Image src="/android-chrome-192x192.png" alt="" width={20} height={20} className="size-5 object-contain" />
           </div>
           {!collapsed && (
             <div className="min-w-0">

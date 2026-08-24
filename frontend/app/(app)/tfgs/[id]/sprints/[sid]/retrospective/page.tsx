@@ -93,9 +93,10 @@ export default function RetrospectivePage() {
   const [insights, setInsights] = useState<{ tipo: string; texto: string }[]>([]);
   const [loadingInsights, setLoadingInsights] = useState(false);
 
-  useEffect(() => {
-    fetchData();
-  }, [sid]);
+  function tryParse(val: string | null): Note[] {
+    if (!val) return [];
+    try { return JSON.parse(val); } catch { return []; }
+  }
 
   async function fetchData() {
     try {
@@ -117,10 +118,9 @@ export default function RetrospectivePage() {
     }
   }
 
-  function tryParse(val: string | null): Note[] {
-    if (!val) return [];
-    try { return JSON.parse(val); } catch { return []; }
-  }
+  useEffect(() => {
+    fetchData();
+  }, [sid]);
 
   async function handleSave() {
     setSaving(true);
@@ -153,7 +153,7 @@ export default function RetrospectivePage() {
     const text = drafts[key].trim();
     if (!text) return;
     const note: Note = {
-      id: Math.random().toString(36).slice(2, 8),
+      id: crypto.randomUUID(),
       text,
       author: user?.name || "Tú",
       votes: 0,
@@ -294,7 +294,7 @@ export default function RetrospectivePage() {
                 ))}
                 {notes[key].length === 0 && (
                   <p className="rounded-lg border border-dashed border-[var(--border)] py-6 text-center font-mono text-xs text-[var(--muted-foreground)]">
-                    // empty — sé el primero en aportar
+                    {"// empty — sé el primero en aportar"}
                   </p>
                 )}
               </div>
@@ -337,7 +337,7 @@ export default function RetrospectivePage() {
           {insights.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-sm text-[var(--muted-foreground)] mb-3">
-                Pulsa "Insights IA" para analizar el sprint con Claude
+                Pulsa &quot;Insights IA&quot; para analizar el sprint con Claude
               </p>
               <Button variant="outline" size="sm" onClick={handleInsights} disabled={loadingInsights}
                 className="gap-2 border-[var(--border)] text-[var(--foreground)]">
