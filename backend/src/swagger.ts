@@ -78,7 +78,7 @@ export const swaggerSpec: OpenAPIV3.Document = {
           id: { type: "integer" },
           title: { type: "string" },
           description: { type: "string" },
-          priority: { type: "string", enum: ["low", "medium", "high"] },
+          priority: { type: "integer" },
           status: { type: "string", enum: ["todo", "in_progress", "done"] },
           storyPoints: { type: "integer" },
           tfgId: { type: "integer" },
@@ -608,7 +608,7 @@ export const swaggerSpec: OpenAPIV3.Document = {
                 properties: {
                   title: { type: "string" },
                   description: { type: "string" },
-                  priority: { type: "string", enum: ["low", "medium", "high"] },
+                  priority: { type: "integer" },
                   storyPoints: { type: "integer" },
                 },
               },
