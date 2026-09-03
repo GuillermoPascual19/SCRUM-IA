@@ -2,6 +2,9 @@ node_modules
 # Keep environment variables out of version control
 .env
 
+# Private keys should never be committed — load via env var (see GITHUB_PRIVATE_KEY) instead
+*.pem
+
 /src/generated/prisma
 
 # This project uses pnpm — ignore stray lockfiles from other package managers

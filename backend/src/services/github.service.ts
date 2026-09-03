@@ -41,6 +41,31 @@ async function getApp() {
 }
 
 
+export async function getGithubOAuthUrl(state: string): Promise<string> {
+  const app = await getApp();
+  const { url } = app.oauth.getWebFlowAuthorizationUrl({ state });
+  return url;
+}
+
+export async function resolveGithubUserEmail(code: string): Promise<string | null> {
+  const app = await getApp();
+  const { authentication } = await app.oauth.createToken({ code });
+
+  const { Octokit } = await import("@octokit/rest");
+  const octokit = new Octokit({ auth: authentication.token });
+
+  try {
+    const { data: emails } = await octokit.request("GET /user/emails");
+    const primary = emails.find((e: any) => e.primary && e.verified);
+    if (primary) return primary.email.toLowerCase();
+  } catch {
+    // The App may not have the "Email addresses" account permission granted — fall back below.
+  }
+
+  const { data: user } = await octokit.request("GET /user");
+  return user.email ? user.email.toLowerCase() : null;
+}
+
 function parseRepo(repositoryUrl: string) {
   const match = repositoryUrl.match(/github\.com\/([^/]+)\/([^/]+?)(?:\.git)?$/);
   if (!match) throw new Error("INVALID_REPO_URL");

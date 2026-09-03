@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { register, login, me, activate, forgotPassword, resetPasswordController, updateProfileController, changePasswordController, refresh } from "../controllers/auth.controller";
+import { register, login, me, activate, forgotPassword, resetPasswordController, updateProfileController, changePasswordController, refresh, githubLoginRedirect, githubLoginCallback } from "../controllers/auth.controller";
 import { authenticate } from "../middleware/auth";
 import { validate } from "../middleware/validate";
 import { registerSchema, loginSchema, forgotPasswordSchema, resetPasswordSchema, changePasswordSchema, updateProfileSchema, refreshSchema } from "../schemas/auth.schemas";
@@ -15,5 +15,7 @@ router.post("/reset-password", validate(resetPasswordSchema), resetPasswordContr
 router.put("/profile", authenticate, validate(updateProfileSchema), updateProfileController);
 router.put("/change-password", authenticate, validate(changePasswordSchema), changePasswordController);
 router.post("/refresh", validate(refreshSchema), refresh);
+router.get("/github", githubLoginRedirect);
+router.get("/github/callback", githubLoginCallback);
 
 export default router;
