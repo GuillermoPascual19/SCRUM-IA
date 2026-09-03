@@ -4,7 +4,9 @@ import {
   registerUser, loginUser, getMe,
   activateAccount, requestPasswordReset, resetPassword,
   updateProfile, changePassword, rotateRefreshToken,
+  loginWithGithubEmail, signGithubLoginState, verifyGithubLoginState,
 } from "../services/auth.service";
+import { getGithubOAuthUrl, resolveGithubUserEmail } from "../services/github.service";
 
 export async function register(req: Request, res: Response) {
   const { name, email, password } = req.body;
@@ -63,6 +65,42 @@ export async function refresh(req: Request, res: Response) {
   const { refreshToken } = req.body;
   const tokens = await rotateRefreshToken(refreshToken);
   res.json(tokens);
+}
+
+export async function githubLoginRedirect(req: Request, res: Response) {
+  const state = signGithubLoginState();
+  const url = await getGithubOAuthUrl(state);
+  res.redirect(url);
+}
+
+const GITHUB_LOGIN_ERROR_REASONS: Record<string, string> = {
+  NO_ACCOUNT: "no_account",
+  ACCOUNT_NOT_ACTIVATED: "not_activated",
+  NO_EMAIL: "no_email",
+  INVALID_STATE: "invalid_state",
+  STATE_EXPIRED: "invalid_state",
+};
+
+export async function githubLoginCallback(req: Request, res: Response) {
+  const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+  const { code, state } = req.query;
+
+  try {
+    if (!code || !state || typeof code !== "string" || typeof state !== "string") {
+      throw new Error("INVALID_REQUEST");
+    }
+    verifyGithubLoginState(state);
+
+    const email = await resolveGithubUserEmail(code);
+    if (!email) throw new Error("NO_EMAIL");
+
+    const { token, refreshToken } = await loginWithGithubEmail(email);
+    res.redirect(`${frontendUrl}/github-callback?token=${token}&refreshToken=${refreshToken}`);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "";
+    const reason = GITHUB_LOGIN_ERROR_REASONS[message] || "error";
+    res.redirect(`${frontendUrl}/login?github=${reason}`);
+  }
 }
 
 export async function resetPasswordController(req: Request, res: Response) {

@@ -44,15 +44,7 @@ function generateTokens(user: { id: number; email: string; role: string }) {
   return { token, refreshToken };
 }
 
-export async function loginUser(email: string, password: string) {
-  const user = await findUserByEmail(email);
-  if (!user) throw new Error("INVALID_CREDENTIALS");
-
-  const valid = await bcrypt.compare(password, user.password);
-  if (!valid) throw new Error("INVALID_CREDENTIALS");
-
-  if (!user.isActive) throw new Error("ACCOUNT_NOT_ACTIVATED");
-
+async function issueSession(user: { id: number; name: string; email: string; role: string }) {
   const { token, refreshToken } = generateTokens(user);
 
   await prisma.user.update({
@@ -65,6 +57,49 @@ export async function loginUser(email: string, password: string) {
     refreshToken,
     user: { id: user.id, name: user.name, email: user.email, role: user.role },
   };
+}
+
+export async function loginUser(email: string, password: string) {
+  const user = await findUserByEmail(email);
+  if (!user) throw new Error("INVALID_CREDENTIALS");
+
+  const valid = await bcrypt.compare(password, user.password);
+  if (!valid) throw new Error("INVALID_CREDENTIALS");
+
+  if (!user.isActive) throw new Error("ACCOUNT_NOT_ACTIVATED");
+
+  return issueSession(user);
+}
+
+export async function loginWithGithubEmail(email: string) {
+  const user = await findUserByEmail(email);
+  if (!user) throw new Error("NO_ACCOUNT");
+  if (!user.isActive) throw new Error("ACCOUNT_NOT_ACTIVATED");
+
+  return issueSession(user);
+}
+
+export function signGithubLoginState(): string {
+  const payload = JSON.stringify({ ts: Date.now() });
+  const sig = crypto.createHmac("sha256", process.env.JWT_SECRET!).update(payload).digest("hex");
+  return Buffer.from(JSON.stringify({ payload, sig })).toString("base64url");
+}
+
+export function verifyGithubLoginState(rawState: string): void {
+  let parsed: { payload: string; sig: string };
+  try {
+    parsed = JSON.parse(Buffer.from(rawState, "base64url").toString());
+  } catch {
+    throw new Error("INVALID_STATE");
+  }
+  const expected = crypto.createHmac("sha256", process.env.JWT_SECRET!).update(parsed.payload).digest("hex");
+  const sigBuf = Buffer.from(parsed.sig, "hex");
+  const expBuf = Buffer.from(expected, "hex");
+  if (sigBuf.length !== expBuf.length || !crypto.timingSafeEqual(sigBuf, expBuf)) {
+    throw new Error("INVALID_STATE");
+  }
+  const { ts } = JSON.parse(parsed.payload);
+  if (Date.now() - ts > 10 * 60 * 1000) throw new Error("STATE_EXPIRED");
 }
 
 export async function rotateRefreshToken(incomingToken: string) {

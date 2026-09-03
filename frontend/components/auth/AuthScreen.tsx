@@ -2,13 +2,25 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Mail, ArrowRight, Eye, EyeOff, Sparkles, Command, ShieldCheck, KeyRound, Check } from "lucide-react";
 import api from "@/lib/axios";
 import { useAuthStore } from "@/store/auth.store";
-import { toast } from "@/components/ui/use-toast";
 
 interface Props { mode: "login" | "register" }
+
+const GITHUB_LOGIN_ERRORS: Record<string, string> = {
+  no_account: "No existe ninguna cuenta con el email de esa cuenta de GitHub. Regístrate primero con tu email.",
+  not_activated: "Esa cuenta existe pero no está activada. Revisa tu correo electrónico.",
+  no_email: "No hemos podido leer un email verificado de tu cuenta de GitHub.",
+  invalid_state: "La solicitud de GitHub expiró o no es válida. Inténtalo de nuevo.",
+  error: "No se ha podido iniciar sesión con GitHub. Inténtalo de nuevo.",
+};
+
+function githubLoginUrl() {
+  const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
+  return `${apiBase}/auth/github`;
+}
 
 function GithubIcon() {
   return (
@@ -80,6 +92,7 @@ function FloatingField({ id, label, value, onChange, onFocus, onBlur, focused, t
 export default function AuthScreen({ mode }: Props) {
   const isLogin = mode === "login";
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { setAuth } = useAuthStore();
 
   const stageRef = useRef<HTMLDivElement>(null);
@@ -92,7 +105,10 @@ export default function AuthScreen({ mode }: Props) {
   const [showPwd, setShowPwd] = useState(false);
   const [showConfirmPwd, setShowConfirmPwd] = useState(false);
   const [focus, setFocus] = useState<string | null>(null);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(() => {
+    const ghError = searchParams.get("github");
+    return ghError ? GITHUB_LOGIN_ERRORS[ghError] || GITHUB_LOGIN_ERRORS.error : "";
+  });
   const [loading, setLoading] = useState(false);
   const [registered, setRegistered] = useState(false);
 
@@ -360,6 +376,7 @@ export default function AuthScreen({ mode }: Props) {
             {/* OAuth row */}
             <button
               type="button"
+              onClick={() => { window.location.href = githubLoginUrl(); }}
               className="group relative inline-flex h-11 w-full items-center justify-center gap-2 overflow-hidden rounded-xl border border-[#1f1f1f] bg-[#111] text-sm font-medium text-[#aaa] transition-all hover:border-[#22c55e]/40 hover:text-white"
             >
               <GithubIcon />
@@ -373,6 +390,11 @@ export default function AuthScreen({ mode }: Props) {
                 }}
               />
             </button>
+            {!isLogin && (
+              <p className="mt-2 text-center text-[11px] text-[#555]">
+                Solo para cuentas ya registradas — no crea una cuenta nueva.
+              </p>
+            )}
 
             {/* Divider */}
             <div className="my-6 flex items-center gap-3">
