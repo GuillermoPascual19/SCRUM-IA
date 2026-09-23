@@ -4,6 +4,11 @@
 >
 > Academic web platform for managing final degree projects (TFGs) using the SCRUM methodology with AI-powered automatic evaluation.
 
+> [!NOTE]
+> **🇪🇸 Proyecto finalizado.** El TFG ha sido defendido y el backend ha dejado de estar activo a partir del **23/10/2026** (se canceló el hosting en Railway). El frontend en Vercel se mantiene como demo estática/archivo del proyecto, sin conexión a la API.
+>
+> **🇬🇧 Project completed.** The TFG has been defended and the backend has been inactive since **2026-10-23** (Railway hosting was cancelled). The Vercel frontend is kept as a static demo/archive of the project, with no live API connection.
+
 ---
 
 ## 🇪🇸 Español

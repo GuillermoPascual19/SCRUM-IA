@@ -21,6 +21,24 @@ function GithubIcon({ className }: { className?: string }) {
   );
 }
 
+/** Archived-project notice — sits above the sticky nav, scrolls away with the page. */
+function SunsetNotice() {
+  return (
+    <div className="relative z-40 border-b border-amber-500/20 bg-amber-500/[0.07] px-4 py-2.5 sm:px-6 lg:px-8">
+      <p className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-2 gap-y-1 text-center font-mono text-[11px] text-amber-200/90 sm:text-[11.5px]">
+        <span className="inline-flex items-center gap-1.5">
+          <span className="size-1.5 shrink-0 rounded-full bg-amber-400" />
+          Proyecto académico (TFG) finalizado
+        </span>
+        <span className="hidden text-amber-200/40 sm:inline">·</span>
+        <span className="text-amber-200/75">
+          Actividad detenida desde el 23/10/2026 — esta interfaz se conserva como demo estática, sin backend activo.
+        </span>
+      </p>
+    </div>
+  );
+}
+
 /** Dot + monospace caption section opener — quiet technical marker between sections. */
 function SectionLabel({ children, center }: { children: React.ReactNode; center?: boolean }) {
   return (
@@ -114,6 +132,8 @@ export default function LandingPage() {
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-[#080808] text-white">
+
+      <SunsetNotice />
 
       {/* Navbar */}
       <header className="sticky top-0 z-50 px-4 pt-5 sm:px-6 lg:px-8">
